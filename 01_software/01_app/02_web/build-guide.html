@@ -191,10 +191,10 @@ details.collapsible > summary { font-size: .92rem; }
             <td>3-pin servo headers exist on the board. Add later if you want articulation. ~$3 each.</td>
           </tr>
           <tr>
-            <td><strong>WS2812B NeoPixel strip / ring (optional)</strong></td>
-            <td class="qty">×1</td>
-            <td class="where">J3 (via JP2)</td>
-            <td>Solder-jumper JP2 routes GPIO 3 to J3 instead of motor PWMA. ~$3.</td>
+            <td><strong>TX1812 5050 addressable RGB LED</strong> (or WS2812B equivalent)</td>
+            <td class="qty">×4</td>
+            <td class="where">D1, D2, D3, D4</td>
+            <td>Onboard NeoPixel chain on GPIO 5 — daisy-chained (D1.DOUT → D2.DIN, etc). The "rich light" of <code>37_rich_light_move</code>. ~$0.30 each.</td>
           </tr>
           <tr>
             <td><strong>HC-SR04 ultrasonic sensor (optional)</strong></td>
@@ -444,9 +444,9 @@ details.collapsible > summary { font-size: .92rem; }
           <tr><td class="gpio">0</td><td>SW1 push-button</td><td>IN</td><td>10 kΩ pull-up to 3V3 (R2). JP1 jumper bridges to GPIO 20 if SW1 unused.</td></tr>
           <tr><td class="gpio">1</td><td>TB6612FNG <strong>AIN1</strong> + green LEDs D5/D6 + J2</td><td>OUT</td><td>Motor A direction bit 1. Also drives green status LED pair.</td></tr>
           <tr><td class="gpio">2</td><td>TB6612FNG <strong>AIN2</strong></td><td>OUT</td><td>Motor A direction bit 2.</td></tr>
-          <tr><td class="gpio">3</td><td>TB6612FNG <strong>PWMA</strong> <em>or</em> J3 (via JP2)</td><td>OUT</td><td>Motor A speed PWM. Solder jumper <code>JP2</code> reroutes to J3 for external use (e.g. NeoPixel strip).</td></tr>
+          <tr><td class="gpio">3</td><td>TB6612FNG <strong>PWMA</strong> + tapped on J3</td><td>OUT</td><td>Motor A speed PWM. Same signal also routed to J3 3-pin header so an external device can share it. <code>JP2</code> selects J3's V+ pin: VCC direct or 5 V regulated.</td></tr>
           <tr><td class="gpio">4</td><td>Buzzer (transistor stage)</td><td>OUT</td><td>R7 base / R8 series / R9 pull-down → bz1 or bz2.</td></tr>
-          <tr><td class="gpio">5</td><td>— unused —</td><td>—</td><td>Free for future.</td></tr>
+          <tr><td class="gpio">5</td><td>Onboard NeoPixel chain D1→D2→D3→D4</td><td>OUT</td><td>4× <code>TX1812</code> 5050 addressable RGB LEDs daisy-chained (WS2812-compatible). 800 kHz via RMT — the "rich light" of the project name.</td></tr>
           <tr><td class="gpio">6</td><td>TB6612FNG <strong>BIN1</strong> + J4 servo header</td><td>OUT</td><td>Motor B direction bit 1. Also routed to 3-pin servo header J4.</td></tr>
           <tr><td class="gpio">7</td><td>TB6612FNG <strong>BIN2</strong></td><td>OUT</td><td>Motor B direction bit 2.</td></tr>
           <tr><td class="gpio">8</td><td>OLED <strong>SDA</strong> (I²C)</td><td>I/O</td><td>10 kΩ pull-up to 3V3 (R10).</td></tr>

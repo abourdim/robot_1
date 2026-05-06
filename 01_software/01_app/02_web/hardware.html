@@ -325,9 +325,9 @@ details.collapsible > summary { font-size: .92rem; }
             <tr class="group-input"><td class="gpio">GPIO 0</td><td class="role">Push-button input</td><td>SW1 (Omron B3F)</td><td>IN</td><td>10 kΩ pull-up to 3V3 (R2). Goes via JP1 jumper to GPIO 20 if wanted.</td></tr>
             <tr class="group-motor"><td class="gpio">GPIO 1</td><td class="role">Motor A direction 1</td><td>TB6612FNG AIN1 + J2 conn + LEDs D5/D6</td><td>OUT</td><td>Also drives green status LED pair via 1 kΩ.</td></tr>
             <tr class="group-motor"><td class="gpio">GPIO 2</td><td class="role">Motor A direction 2</td><td>TB6612FNG AIN2</td><td>OUT</td><td>Forms the AIN1/AIN2 truth-table for motor A direction.</td></tr>
-            <tr class="group-motor"><td class="gpio">GPIO 3</td><td class="role">Motor A speed (PWM)</td><td>TB6612FNG PWMA <em>or</em> J3 (via JP2)</td><td>OUT</td><td>Solder jumper <code>JP2</code> selects: motor PWM <em>or</em> external use (e.g. NeoPixel strip on J3).</td></tr>
+            <tr class="group-motor"><td class="gpio">GPIO 3</td><td class="role">Motor A speed (PWM)</td><td>TB6612FNG PWMA + also exposed on J3</td><td>OUT</td><td>GPIO 3 always drives PWMA. The J3 3-pin header taps the same signal so an external device (e.g. servo) can share it. Solder jumper <code>JP2</code> selects J3's power pin: <strong>VCC direct</strong> (battery) <em>or</em> <strong>5 V regulated</strong> (per the 2025-06-21 schematic note).</td></tr>
             <tr class="group-power"><td class="gpio">GPIO 4</td><td class="role">Buzzer</td><td>R7 → transistor → bz1/bz2</td><td>OUT</td><td>Transistor stage (R7 base, R8 series, R9 pull-down). Allows louder volume + protects GPIO.</td></tr>
-            <tr class="group-aux"><td class="gpio">GPIO 5</td><td class="role">— unused —</td><td>—</td><td>—</td><td>Free for future expansion.</td></tr>
+            <tr class="group-aux"><td class="gpio">GPIO 5</td><td class="role">Onboard NeoPixel chain</td><td>D1 → D2 → D3 → D4 (TX1812, 5050)</td><td>OUT</td><td>4× WS2812-compatible addressable RGB LEDs daisy-chained. <code>DIN</code> of D1 = GPIO 5; <code>DOUT</code> of each feeds <code>DIN</code> of next. Drives the "rich light" animations via RMT @ 800 kHz.</td></tr>
             <tr class="group-motor"><td class="gpio">GPIO 6</td><td class="role">Motor B direction 1</td><td>TB6612FNG BIN1 + J4 conn</td><td>OUT</td><td>Also routed to J4 servo header (3-pin V+/GND/sig).</td></tr>
             <tr class="group-motor"><td class="gpio">GPIO 7</td><td class="role">Motor B direction 2</td><td>TB6612FNG BIN2</td><td>OUT</td><td>Forms the BIN1/BIN2 truth-table for motor B direction.</td></tr>
             <tr class="group-i2c"><td class="gpio">GPIO 8</td><td class="role">I²C SDA</td><td>OLED 128×32</td><td>I/O</td><td>10 kΩ pull-up to 3V3 (R10).</td></tr>
@@ -365,8 +365,8 @@ details.collapsible > summary { font-size: .92rem; }
           </div>
           <div class="conn">
             <h4>J3 <span class="pintype">3-pin servo</span></h4>
-            <p>Multipurpose — signal on <code>GPIO 3</code> (via JP2: motor PWMA <em>or</em> external). Good for an external NeoPixel strip.</p>
-            <span class="pins">VCC · 5V · GPIO 3</span>
+            <p>Servo-style header that taps the <strong>PWMA</strong> signal (GPIO 3). JP2 selects whether the V+ pin is VCC (direct battery) or 5 V (regulated) — see schematic note.</p>
+            <span class="pins">V+ (VCC or 5V via JP2) · GND · GPIO 3 / PWMA</span>
           </div>
           <div class="conn">
             <h4>J4 <span class="pintype">3-pin servo</span></h4>
