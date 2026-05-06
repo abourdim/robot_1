@@ -853,6 +853,223 @@ Description: Périphérique série USB (COM8)</div>
         </div>
       </div>
 
+      <div class="bug" id="bug-006">
+        <div class="bug-hdr">
+          <span class="bug-id fixed">BUG-006</span>
+          <span class="bug-title">Geolocation permission popup on every page load</span>
+          <span class="bug-date">2026-05-06 07:24</span>
+          <span class="bug-status fixed">✅ Fixed</span>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <div class="label">Symptom</div>
+            <div class="val">Browser shows <code>"Allow this site to know your location?"</code> dialog every time the launcher opens. Three buttons: <em>Allow this visit · Allow once · Never</em>. Hits all 5 pages (index, start-here, flash, monitor, audit) because they share <code>wdiy-script.js</code>.</div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Root cause</div>
+            <div class="val">Workshop-DIY template's <code>initNightMode()</code> in <code>02_web/assets/wdiy-script.js</code> (lines 928–944) called <code>navigator.geolocation.getCurrentPosition()</code> to compute precise local sunset, so it could auto-switch the theme to dark after dusk. The simple version (<code>new Date().getHours() &gt;= 21</code>) ran first; the geolocation block ran on top to refine. Net effect: every page load triggered the OS-level location prompt for a feature 99% of users never notice.</div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Fix</div>
+            <div class="val">
+              Removed the geolocation block entirely (lines 928–944). Kept the cheap clock-only check: 21:00–06:00 still auto-applies <code>lab-dark</code> if the user hasn't picked a theme.<br>
+              <code>calcSunset()</code> kept in source as dead code (API compat) but no longer called.
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Files</div>
+            <div class="val">
+              <div class="bug-files">
+                <span class="file">01_software/01_app/02_web/assets/wdiy-script.js</span>
+              </div>
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Lesson</div>
+            <div class="val">Vendored UI templates can ship feel-good features (auto-night-mode, ghost cursors, AR mode, etc.) that quietly request elevated permissions. Audit any imported <code>navigator.*</code>, <code>fetch()</code> to external hosts, or <code>localStorage</code> writes before deploying.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bug" id="bug-007">
+        <div class="bug-hdr">
+          <span class="bug-id fixed">BUG-007</span>
+          <span class="bug-title">Splash screen renders as flex sibling instead of full-screen overlay</span>
+          <span class="bug-date">2026-05-06 07:27</span>
+          <span class="bug-status fixed">✅ Fixed</span>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <div class="label">Symptom</div>
+            <div class="val">On <code>index.html</code> the splash screen (logo + "ESP32-C3 ROBOT APP" title + tap-to-skip) appeared <strong>beside</strong> the main app on the left half of the page, not as a full-screen overlay. It also never auto-dismissed.</div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Root cause</div>
+            <div class="val">Selector mismatch between markup and CSS in the Workshop-DIY template:
+              <div class="crash-dump" style="font-size:11px">// markup (in shell.js + start-here.html)
+&lt;div id="splash" onclick="dismissSplash()"&gt;
+  ...
+&lt;/div&gt;
+
+// CSS (in wdiy-template.css)
+.splash { position: fixed; inset: 0; z-index: 10000; ... }
+.splash.hidden { opacity: 0; pointer-events: none; }</div>
+              The element used <code>id="splash"</code> but the CSS targeted the <code>.splash</code> <em>class</em>. Selector never matched → no <code>position: fixed</code> → splash inherited <code>display: flex</code> from <code>body</code> and rendered as a sibling flex item next to the app. Even worse, <code>dismissSplash()</code> adds a <code>hidden</code> class but <code>.splash.hidden</code> never matched either, so the dismiss had no visual effect.</div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Why we didn't see it on start-here.html first</div>
+            <div class="val">Because <code>initSplash()</code> calls <code>setTimeout(dismissSplash, 2500)</code> and <code>dismissSplash()</code> calls <code>setTimeout(() =&gt; s.remove(), 600)</code>. After ~3.1 s the element is removed from the DOM regardless of CSS. So on most loads we never noticed the misplacement — until the user happened to look at <code>index.html</code> within the first 3 s.</div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Fix</div>
+            <div class="val">Two-character change in <code>wdiy-template.css</code>:
+              <div class="crash-dump" style="font-size:11px">.splash         →  #splash
+.splash.hidden  →  #splash.hidden</div>
+              Inner classes (<code>.splash-inner</code>, <code>.splash-logo</code>, <code>.splash-title</code>, <code>.splash-sub</code>, <code>.splash-hint</code>) stayed as-is — they always matched correctly because those elements have proper <code>class=</code> attributes.
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Files</div>
+            <div class="val">
+              <div class="bug-files">
+                <span class="file">01_software/01_app/02_web/assets/wdiy-template.css</span>
+              </div>
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Lesson</div>
+            <div class="val">When porting a vendored template, run a quick <code>id</code> vs <code>class</code> audit: pull every <code>id="..."</code> in the markup and check the CSS targets each one consistently. Mixed-mode templates (id on outer container, class on children) are a common source of phantom selectors.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bug" id="bug-008">
+        <div class="bug-hdr">
+          <span class="bug-id fixed">BUG-008</span>
+          <span class="bug-title">Pixel pet appeared twice in the app footer</span>
+          <span class="bug-date">2026-05-06 06:40</span>
+          <span class="bug-status fixed">✅ Fixed</span>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <div class="label">Symptom</div>
+            <div class="val">Two robot icons rendered side-by-side at the start of the <code>.app-footer</code> on <code>start-here.html</code>. Only one was animated; the other was a static duplicate.</div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Root cause</div>
+            <div class="val"><code>initPixelPet()</code> in <code>wdiy-script.js</code> always created and inserted a new <code>&lt;div id="pixelPet"&gt;</code> regardless of whether one already existed. Any double-init scenario (hot-reload, theme toggle re-running init, etc.) appended another one instead of reusing.</div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Fix</div>
+            <div class="val">Idempotency guard at the top of <code>initPixelPet()</code>:
+              <div class="crash-dump" style="font-size:11px">function initPixelPet() {
+  if (document.getElementById('pixelPet')) return; // ← added
+  const pet = document.createElement('div');
+  ...
+}</div>
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Files</div>
+            <div class="val">
+              <div class="bug-files">
+                <span class="file">01_software/01_app/02_web/assets/wdiy-script.js</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bug" id="bug-009">
+        <div class="bug-hdr">
+          <span class="bug-id fixed">BUG-009</span>
+          <span class="bug-title">Light-theme polish: muddy cards · invisible footer · display fonts illegible at small sizes</span>
+          <span class="bug-date">2026-05-06 07:00</span>
+          <span class="bug-status fixed">✅ Fixed</span>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <div class="label">Symptom</div>
+            <div class="val">On the three light themes (<code>lab-light</code>, <code>solarized</code>, <code>bot-pop</code>) — and later <code>kapow</code>, <code>dino</code> — multiple visual issues:
+              <ul style="margin-left:16px;line-height:1.6">
+                <li>Mission cards (<code>.m-cell</code>) and stat blocks rendered with a <strong>dirty grey wash</strong> instead of clean white panels.</li>
+                <li>Footer text "workshop-diy.org · Robot-37 ·" was nearly invisible on the pale-blue <code>bot-pop</code> background.</li>
+                <li>Bismillah Arabic calligraphy was ghost-pale at <code>opacity: .45</code>.</li>
+                <li>On <code>dino</code>: <strong>Lilita One</strong> chunky display font applied to <em>every</em> heading (mission summaries, card titles, sidebar labels) — squashed letterforms, hard to read at 14 px.</li>
+                <li>On <code>kapow</code>: same issue with <strong>Bangers</strong> font cascading to all UI labels.</li>
+                <li>On <code>bot-pop</code>: initial <strong>Bangers</strong> heading font for everything → comic-book lettering on UI chrome.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Root causes (3 distinct)</div>
+            <div class="val">
+              <strong>1. Hardcoded dark backgrounds.</strong> Mission-specific styles in <code>start-here.html</code> used <code>background: rgba(0,0,0,.22)</code> for cards, statbar, <code>&lt;pre&gt;</code>, file tree, pipeline, bootreset. Designed for dark themes only. On light themes that 22% black wash turned crisp panels into wet concrete.<br><br>
+
+              <strong>2. Footer/bismillah opacity.</strong> Template CSS hardcoded <code>.app-footer { opacity: .45 }</code> and <code>.bismillah { opacity: .45 }</code>. On dark backgrounds .45 reads as muted-but-visible. On bright backgrounds it reads as not-there.<br><br>
+
+              <strong>3. Display-font scope.</strong> Themes set <code>--font-h: 'Bangers'</code> or <code>'Lilita One'</code> as the heading font, and the template applies <code>var(--font-h)</code> to <em>every</em> heading-class element: <code>h1</code>, <code>.card-title</code>, <code>details.collapsible &gt; summary</code>, <code>.sidebar-title</code>, <code>.help-tab</code>, <code>.section-title</code>. Display fonts are designed for hero moments at large sizes — not 14 px UI labels with <code>text-transform: uppercase</code> already on top.
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Fix</div>
+            <div class="val">
+              Three layered patches:<br><br>
+
+              <strong>A.</strong> Added a <code>.light-theme</code> override block in <code>start-here.html</code>'s inline <code>&lt;style&gt;</code>:
+              <div class="crash-dump" style="font-size:11px">.light-theme .m-cell,
+.light-theme .m-statusbar,
+.light-theme pre,
+.light-theme .m-tree,
+.light-theme .m-pipeline,
+.light-theme .m-bootreset {
+  background: rgba(0,0,0,.04);
+  color: var(--text);
+}
+.light-theme .app-footer { opacity: .7; }
+.light-theme .bismillah  { opacity: .65; }
+.light-theme code { color: var(--text); }</div>
+              The terminal mockup (<code>.m-term</code>) was deliberately <em>not</em> overridden — its dark CRT aesthetic is intentional even on light themes.<br><br>
+
+              <strong>B.</strong> Per-theme display-font scope in <code>wdiy-template.css</code> for <code>kapow</code> and <code>dino</code>:
+              <div class="crash-dump" style="font-size:11px">[data-theme="dino"] details.collapsible > summary,
+[data-theme="dino"] .card-title,
+[data-theme="dino"] .sidebar-title,
+[data-theme="dino"] .help-tab,
+[data-theme="dino"] .section-title,
+[data-theme="dino"] .m-h3,
+[data-theme="dino"] .m-cell h3 {
+  font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: .02em;
+}</div>
+              Result: Bangers / Lilita One stay on the hero <code>h1</code> + splash title (where they look heroic), Fredoka 700 takes over for sub-headings (where it reads chunky-but-legible).<br><br>
+
+              <strong>C.</strong> Switched <code>bot-pop</code>'s <code>--font-h</code> from Bangers → <code>'Fredoka', 'Nunito'</code> outright. Bangers turned out to only fit <code>kapow</code>'s comic-book aesthetic.
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Files</div>
+            <div class="val">
+              <div class="bug-files">
+                <span class="file">01_software/01_app/02_web/start-here.html</span>
+                <span class="file">01_software/01_app/02_web/assets/wdiy-template.css</span>
+              </div>
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Lesson</div>
+            <div class="val">When designing a multi-theme system, the test matrix is N&times;M: every component × every theme. Backgrounds, opacities, and display fonts that look right on one theme can break on another. Three rules emerged:
+              <ol style="margin-left:16px;line-height:1.6">
+                <li><strong>No hardcoded <code>rgba(0,0,0,.X)</code> backgrounds</strong> for component fills — use <code>var(--panel)</code> + a <code>.light-theme</code> override if needed.</li>
+                <li><strong>Opacity for chrome ≠ opacity for content.</strong> Footer + decoration may be muted, but never invisible.</li>
+                <li><strong>Display fonts are hero-only.</strong> Scope to <code>h1</code>, splash title, banners — never cascade to UI labels.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- .bugs-section -->
 
   </div><!-- .rows-container -->
