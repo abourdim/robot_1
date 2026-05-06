@@ -1266,19 +1266,30 @@ esp32c3-lab.ino:387:3: error: 'Serial' was not declared in this scope
           </div>
 
           <div class="bug-row">
-            <div class="label">Root cause 3 — Serial symbol missing</div>
+            <div class="label">Root cause 3 — Serial symbol missing (deeper than first thought)</div>
             <div class="val">
-              On <code>arduino-esp32 2.0.16</code> (which <code>espressif32 @ 6.7.0</code> ships) for the <code>esp32-c3-devkitm-1</code> board variant, the symbol redefinition that should alias <code>Serial</code> → <code>USBSerial</code> (HWCDC instance) doesn't fire correctly when <code>ARDUINO_USB_CDC_ON_BOOT=1</code> is in <code>build_flags</code>. Compiler reports <code>Serial</code> undefined, suggests <code>Serial1</code>.<br><br>
+              On <code>arduino-esp32 2.0.16</code> (shipped by <code>espressif32 @ 6.7.0</code>), the <code>esp32-c3-devkitm-1</code> board profile has an inconsistent macro state when <code>ARDUINO_USB_CDC_ON_BOOT=1</code> is set without a paired <code>ARDUINO_USB_MODE=0</code>:
+              <div class="crash-dump">// HardwareSerial.h (framework)
+#if SOC_RX0 != -1 && !ARDUINO_USB_CDC_ON_BOOT
+extern HardwareSerial Serial;     // ← skipped when CDC ON BOOT
+#endif
 
-              The HWCDC instance <strong>is</strong> created at boot (USB CDC works for <code>esp-web-tools</code> upload) — only the <code>Serial</code> name is missing in user-code scope.<br><br>
+// HWCDC.h / HWCDC.cpp (framework)
+#if !ARDUINO_USB_MODE && ARDUINO_USB_CDC_ON_BOOT
+extern HWCDC USBSerial;
+// (#define Serial USBSerial happens elsewhere conditionally)
+#endif</div>
+              On the <code>esp32-c3-devkitm-1</code> profile, <code>ARDUINO_USB_MODE</code> is undefined → preprocessor treats it as 0 → the HWCDC block <em>should</em> fire and define <code>Serial</code>. But due to a header-ordering / macro-evaluation quirk in 2.0.16, the <code>#define Serial USBSerial</code> doesn't propagate to the framework's own <code>HardwareSerial.cpp</code> compilation unit — only to user code.<br><br>
 
-              <strong>Fix taken:</strong> dropped the <code>Serial.begin()</code> + <code>Serial.println()</code> boot banner from the .ino. Firmware communicates over BLE; the BLE log panel in the browser fills the diagnostic role.<br><br>
+              <strong>Phase 1 fix (insufficient):</strong> dropped <code>Serial.*</code> calls from the .ino. <em>This stopped <strong>user-code</strong> from referencing Serial, but the framework's own <code>HardwareSerial.cpp:60</code> calls <code>Serial.available()</code> in <code>serialEventRun()</code> — that file still failed to compile.</em><br><br>
+
+              <strong>Phase 2 fix (correct):</strong> remove the <code>-DARDUINO_USB_CDC_ON_BOOT=1</code> flag entirely. The board's default (CDC OFF) makes the framework declare <code>Serial</code> as <code>HardwareSerial(0)</code> via the standard SOC_RX0 path. Framework compiles cleanly. User code doesn't reference <code>Serial</code> anyway. <strong>esptool upload still works</strong> via the chip's built-in USB JTAG/Serial peripheral — that path is independent of Arduino's HWCDC class.<br><br>
 
               <strong>Fixes not taken (for reference):</strong>
               <ul style="padding-left:18px;margin:6px 0">
-                <li><code>USBSerial.begin(115200)</code> — works but ties code to CDC mode.</li>
-                <li><code>Serial0.begin(115200)</code> — UART0 hardware Serial; pins not exposed on the C3 SuperMini USB-C connector, so user wouldn't see output anyway.</li>
-                <li>Switching to <code>arduino-esp32 3.x</code> (via <code>espressif32 @ 53.x</code>) — fixes the Serial issue but breaks NimBLE compatibility.</li>
+                <li>Pair <code>-DARDUINO_USB_CDC_ON_BOOT=1</code> with <code>-DARDUINO_USB_MODE=0</code> — would in theory fire the HWCDC declaration cleanly. Untested; CDC-off default is simpler.</li>
+                <li>Switch to <code>arduino-esp32 3.x</code> (via <code>espressif32 @ 53.x</code>) — fixes the Serial issue but breaks NimBLE-Arduino 1.x compatibility (NimBLE 2.x has API breakage).</li>
+                <li>Use <code>USBSerial.begin()</code> directly — would work for user code but not the framework's <code>HardwareSerial.cpp</code> internal call.</li>
               </ul>
             </div>
           </div>
