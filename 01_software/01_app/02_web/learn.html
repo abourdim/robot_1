@@ -752,10 +752,62 @@ spiffs    data 0x290000 0x170000   <span style="color:var(--text-muted"># 1.4 MB
 
         <table class="dt">
           <tr><th>GPIO</th><th>Boot role</th><th>Audit ref</th></tr>
-          <tr><td><code>2</code></td><td>Strapping — VDD_SPI voltage select. Pull-up/down at boot.</td><td>—</td></tr>
-          <tr><td><code>8</code></td><td>Onboard LED on Super Mini board. Conflicts with I²C SDA.</td><td><a href="audit.html">H1</a></td></tr>
-          <tr><td><code>9</code></td><td>BOOT button. Pulled low at power-on enters bootloader.</td><td><a href="audit.html">H2</a></td></tr>
+          <tr><td><code>2</code></td><td>Strapping — VDD_SPI voltage select. Pulled at boot.</td><td>—</td></tr>
+          <tr><td><code>8</code></td><td>Strapping + onboard LED on the Super Mini (active LOW, blue). Conflicts with I²C SDA without a pull-up.</td><td><a href="audit.html">H1</a></td></tr>
+          <tr><td><code>9</code></td><td>Strapping + BOOT button. Pulled LOW at power-on enters ROM bootloader.</td><td><a href="audit.html">H2</a></td></tr>
         </table>
+
+        <h3 class="subhead">ESP32-C3 SuperMini — board-specific quirks</h3>
+
+        <p class="lead">
+          The exact dev-board this project uses. Reference page:
+          <a href="https://randomnerdtutorials.com/getting-started-esp32-c3-super-mini/" target="_blank" rel="noopener">randomnerdtutorials.com / Getting Started with ESP32-C3 Super Mini</a>.
+          Things that bite you on this specific board:
+        </p>
+
+        <table class="dt">
+          <tr><th>Quirk</th><th>What &amp; why</th><th>Mitigation</th></tr>
+          <tr>
+            <td><strong>Onboard LED is active LOW</strong></td>
+            <td>The blue LED on GPIO 8 is wired so that <code>digitalWrite(8, LOW)</code> turns it on, <code>HIGH</code> turns it off. Standard <code>blink</code> sketch looks inverted.</td>
+            <td>Invert your logic, or move status indicator to another GPIO.</td>
+          </tr>
+          <tr>
+            <td><strong>Antenna defect (some batches)</strong></td>
+            <td>Wi-Fi range is poor on certain production runs. Cause: the cap labelled <code>C3</code> sits ~1.5 mm from the antenna trace instead of the design spec ~3.3 mm — detunes the matching network.</td>
+            <td>Inspect under magnification before assembly. If it's a defective batch, the only real fix is switching boards.</td>
+          </tr>
+          <tr>
+            <td><strong>Breadboard kills Wi-Fi</strong></td>
+            <td>Metal contacts under the antenna detune it. Range drops to a few metres.</td>
+            <td>Raise the board 15 + mm above the breadboard with stacking headers, or mount it on the edge so the antenna overhangs.</td>
+          </tr>
+          <tr>
+            <td><strong>Power LED drains the battery</strong></td>
+            <td>The red "power on" LED steals ~500 µA in deep sleep — about 10× the chip's own minimum.</td>
+            <td>Desolder the LED (or its current-limit resistor) for battery-powered builds. Brings sleep current to the datasheet's ~43 µA.</td>
+          </tr>
+          <tr>
+            <td><strong>USB CDC On Boot must be enabled</strong></td>
+            <td>The board has no external UART chip — only the chip's native USB-Serial/JTAG. Without the right Arduino IDE setting, <code>Serial.print()</code> goes nowhere.</td>
+            <td>Arduino IDE → <em>Tools → USB CDC On Boot → Enabled</em>. PlatformIO sets this automatically for the <code>esp32-c3-devkitm-1</code> board.</td>
+          </tr>
+          <tr>
+            <td><strong>Deep-sleep upload trap</strong></td>
+            <td>If your firmware enters deep sleep within seconds of boot, esptool can't sync — the chip is asleep before the auto-reset finishes.</td>
+            <td>BOOT/RESET trick (hold BOOT, tap RST, release BOOT) before retrying upload. Or build a delay-on-boot guard into firmware before the sleep call.</td>
+          </tr>
+          <tr>
+            <td><strong>UART defaults: GPIO 20 (RX) / 21 (TX)</strong></td>
+            <td>If you use <code>Serial1</code> or expose a hardware UART, these are the default pins on the Arduino-ESP32 core.</td>
+            <td>Or remap with <code>Serial1.begin(baud, mode, RX, TX)</code> to any free GPIO.</td>
+          </tr>
+        </table>
+
+        <div class="alert">
+          <strong>// Specs at a glance</strong>
+          RISC-V single-core @ 160 MHz · 4 MB flash · 400 KB SRAM · 384 KB ROM · 11 broken-out GPIOs · 2× 12-bit ADCs (6 channels) · 6× PWM channels · WiFi 2.4 GHz · BLE 5 · USB-C native · 3.3 V regulator (~500 mA) · accepts 3.3 V – 6 V on VIN.
+        </div>
       </div>
     </details>
 
