@@ -1146,6 +1146,180 @@ Description: Périphérique série USB (COM8)</div>
         </div>
       </div>
 
+      <div class="bug" id="bug-011">
+        <div class="bug-hdr">
+          <span class="bug-id fixed">BUG-011</span>
+          <span class="bug-title">Web Bluetooth picker shows no devices — NUS UUID lives in scan-response, not advertisement</span>
+          <span class="bug-date">2026-05-06 15:09</span>
+          <span class="bug-status fixed">✅ Fixed</span>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <div class="label">Symptom</div>
+            <div class="val">In the new <code><a href="https://abourdim.github.io/esp32c3-lab/">esp32c3-lab</a></code> sister project, clicking <strong>Connect</strong> in any lab page opened the Chrome BLE picker and immediately showed <code>"Aucun appareil compatible détecté"</code> ("No compatible device detected") — even with the ESP32-C3 powered, advertising, and within range. Multiple browser refreshes, BT toggles, and re-pair attempts didn't help.</div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Initial filter (broken)</div>
+            <div class="val">
+              <div class="crash-dump">device = await navigator.bluetooth.requestDevice({
+  filters: [{ services: [NUS_SERVICE] }],
+  optionalServices: [NUS_SERVICE],
+});</div>
+              Filtering by Nordic UART Service (<code>6e400001-…ca9e</code>) is the documented pattern — that's what maqueen-lab uses, and the firmware <em>did</em> add the UUID to the advertisement via <code>adv-&gt;addServiceUUID(NUS_SERVICE_UUID)</code>.
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Root cause</div>
+            <div class="val">
+              <strong>BLE 4.x advertisement packet capacity = 31 bytes.</strong>
+              When the device name (<code>esp32c3-lab</code> = 11 bytes wrapped in length+type = 13 bytes) plus standard flags (3 bytes) plus the 128-bit NUS UUID (16 bytes wrapped = 18 bytes) plus advertising-data overhead all add up, you exceed 31 bytes.<br><br>
+              <strong>NimBLE-Arduino's silent fallback:</strong> when the primary advertisement payload would overflow, the library moves the long 128-bit service UUID into the <em>scan-response</em> packet (a separate 31-byte packet returned only when the central actively scans).<br><br>
+              <strong>Web Bluetooth's filter behaviour:</strong> Chrome's <code>requestDevice()</code> matches its <code>filters</code> against the <strong>primary advertisement only</strong>, not the scan response. The browser sees the device's name, sees no NUS UUID in the advertisement payload, and rejects it during filter evaluation. Picker shows nothing.
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Why maqueen-lab didn't hit this</div>
+            <div class="val">A micro:bit advertising as <code>BBC micro:bit [xxxxx]</code> (~22 bytes including formatting) leaves enough room for the NUS UUID in the primary advertisement. The Workshop-DIY team's chosen device name was just short enough to squeeze in. ESP32-C3 + the chosen <code>esp32c3-lab</code> name overflows the budget.</div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Fix</div>
+            <div class="val">
+              Extend the filter list to also match by <strong>name prefix</strong>:
+              <div class="crash-dump">filters: [
+  { services:   [NUS_SERVICE] },
+  { namePrefix: 'esp32c3'      },   // ← new fallback
+  { name:       'esp32c3-lab'  },
+],
+optionalServices: [NUS_SERVICE],</div>
+              Multiple filter entries are OR'd. The browser shows any device matching <em>any</em> of them. <code>optionalServices</code> ensures NUS is still accessible after pairing, regardless of which filter triggered the match.
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Files</div>
+            <div class="val">
+              <div class="bug-files">
+                <span class="file">esp32c3-lab/js/ble.js</span>
+                <span class="file">esp32c3-lab/firmware/esp32c3-lab/esp32c3-lab.ino</span>
+              </div>
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Lessons</div>
+            <div class="val">
+              <ol style="padding-left:18px;line-height:1.7;margin:6px 0">
+                <li><strong>Don't filter only by 128-bit UUID</strong> when your device name + UUID exceeds the 31-byte advertisement budget. Always provide a <code>namePrefix</code> fallback.</li>
+                <li>The 128-bit NUS UUID is the worst-case for advertisement budgets. 16-bit UUIDs (Bluetooth-SIG-assigned) take only 2 bytes in advertising data and don't have this problem.</li>
+                <li>To diagnose: install <em>nRF Connect</em> on a phone and scan — it shows both advertisement and scan-response packets explicitly. If the UUID appears under "Scan Response Data" but not "Advertisement Data", you have this problem.</li>
+                <li>Alternative firmware fix (untaken): set a shorter device name (<code>c3lab</code> = 5 bytes) so UUID + name both fit in advertisement. Less user-friendly.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bug" id="bug-012">
+        <div class="bug-hdr">
+          <span class="bug-id fixed">BUG-012</span>
+          <span class="bug-title">esp32c3-lab firmware: PlatformIO layout + Serial-symbol-missing on C3 SuperMini</span>
+          <span class="bug-date">2026-05-06 17:30</span>
+          <span class="bug-status fixed">✅ Fixed</span>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <div class="label">Symptom</div>
+            <div class="val">Three sequential failures while building the new esp32c3-lab firmware sketch from scratch:
+              <div class="crash-dump"># Failure 1
+Warning! Ignore unknown configuration option `build_flags_extra` in section [env:esp32-c3-devkitm-1]
+
+# Failure 2
+Error: Nothing to build. Please put your source code files
+to the 'D:\…\firmware\src' folder
+
+# Failure 3 (after fixing layout)
+esp32c3-lab.ino: In function 'void setup()':
+esp32c3-lab.ino:387:3: error: 'Serial' was not declared in this scope
+   Serial.begin(115200);
+   ^~~~~~
+   note: suggested alternative: 'Serial1'</div>
+            </div>
+          </div>
+
+          <div class="bug-row">
+            <div class="label">Root cause 1 — invalid PIO directive</div>
+            <div class="val">
+              <code>build_flags_extra</code> is not a real PlatformIO option. Originally invented by me to "append" without overwriting the board defaults, but the real way to do that is just put everything in <code>build_flags</code> (it's additive to the board's defaults already).<br><br>
+              Fix: collapsed the <code>build_flags_extra</code> + <code>build_unflags</code> dance into a single <code>build_flags</code> list.
+            </div>
+          </div>
+
+          <div class="bug-row">
+            <div class="label">Root cause 2 — src_dir convention</div>
+            <div class="val">
+              PlatformIO's default <code>src_dir</code> is <code>src</code> (relative to the directory containing <code>platformio.ini</code>). The sketch was at <code>firmware/esp32c3-lab.ino</code>, so PIO scanned <code>firmware/src/</code>, found nothing, refused to build.<br><br>
+              <strong>Solutions considered:</strong>
+              <ul style="padding-left:18px;margin:6px 0">
+                <li><code>src_dir = .</code> — keep .ino at <code>firmware/</code>; PIO would also scan <code>README.md</code> etc.</li>
+                <li>Move .ino to <code>firmware/src/esp32c3-lab.ino</code> — works for PIO but Arduino IDE complains "folder name must match .ino name".</li>
+                <li>✅ <strong>Move .ino to <code>firmware/esp32c3-lab/esp32c3-lab.ino</code> + set <code>src_dir = esp32c3-lab</code></strong> — works for both. Folder name matches sketch name (Arduino IDE happy); PIO follows <code>src_dir</code>.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="bug-row">
+            <div class="label">Root cause 3 — Serial symbol missing</div>
+            <div class="val">
+              On <code>arduino-esp32 2.0.16</code> (which <code>espressif32 @ 6.7.0</code> ships) for the <code>esp32-c3-devkitm-1</code> board variant, the symbol redefinition that should alias <code>Serial</code> → <code>USBSerial</code> (HWCDC instance) doesn't fire correctly when <code>ARDUINO_USB_CDC_ON_BOOT=1</code> is in <code>build_flags</code>. Compiler reports <code>Serial</code> undefined, suggests <code>Serial1</code>.<br><br>
+
+              The HWCDC instance <strong>is</strong> created at boot (USB CDC works for <code>esp-web-tools</code> upload) — only the <code>Serial</code> name is missing in user-code scope.<br><br>
+
+              <strong>Fix taken:</strong> dropped the <code>Serial.begin()</code> + <code>Serial.println()</code> boot banner from the .ino. Firmware communicates over BLE; the BLE log panel in the browser fills the diagnostic role.<br><br>
+
+              <strong>Fixes not taken (for reference):</strong>
+              <ul style="padding-left:18px;margin:6px 0">
+                <li><code>USBSerial.begin(115200)</code> — works but ties code to CDC mode.</li>
+                <li><code>Serial0.begin(115200)</code> — UART0 hardware Serial; pins not exposed on the C3 SuperMini USB-C connector, so user wouldn't see output anyway.</li>
+                <li>Switching to <code>arduino-esp32 3.x</code> (via <code>espressif32 @ 53.x</code>) — fixes the Serial issue but breaks NimBLE compatibility.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="bug-row">
+            <div class="label">Final layout</div>
+            <div class="val">
+              <div class="crash-dump">esp32c3-lab/firmware/
+├── platformio.ini              ← src_dir = esp32c3-lab
+├── README.md
+└── esp32c3-lab/
+    └── esp32c3-lab.ino         ← matches Arduino IDE folder rule
+                                   matches PIO src_dir setting</div>
+            </div>
+          </div>
+
+          <div class="bug-row">
+            <div class="label">Files</div>
+            <div class="val">
+              <div class="bug-files">
+                <span class="file">esp32c3-lab/firmware/platformio.ini</span>
+                <span class="file">esp32c3-lab/firmware/esp32c3-lab/esp32c3-lab.ino</span>
+                <span class="file">esp32c3-lab/firmware/README.md</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bug-row">
+            <div class="label">Lessons</div>
+            <div class="val">
+              <ol style="padding-left:18px;line-height:1.7;margin:6px 0">
+                <li>Verify every <code>platformio.ini</code> directive against the official docs — typos / made-up options only emit warnings, not errors.</li>
+                <li>The <code>firmware/&lt;sketch-name&gt;/&lt;sketch-name&gt;.ino</code> + <code>src_dir = &lt;sketch-name&gt;</code> pattern is the cleanest way to satisfy both PlatformIO and Arduino IDE simultaneously. Recommend for any hybrid-build project.</li>
+                <li>Don't trust <code>Serial</code> on ESP32-C3 with arduino-esp32 2.0.x. Either use <code>USBSerial</code> directly, or drop the dependency entirely (the BLE log can substitute for diagnostics).</li>
+                <li>When in doubt, <code>pio run -v</code> shows the exact compiler invocation including which <code>-D</code> macros are defined. Helps disambiguate "is this flag actually being applied?" questions.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- .bugs-section -->
 
   </div><!-- .rows-container -->
