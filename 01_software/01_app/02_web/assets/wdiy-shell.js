@@ -229,6 +229,29 @@
       ],
     },
 
+    /* ── Learn — technical deep-dive reference ── */
+    'learn': {
+      faq: [
+        ['How is this different from start-here?', 'Start-here is the narrative tour (14 missions). Learn is the reference manual — every option of launch.sh, every directive of platformio.ini, with failure modes and cross-links.'],
+        ['Who is this for?',                       'Devs past start-here who want the <em>why</em> and <em>what\'s underneath</em>. Reference, not tutorial.'],
+        ['Can I add a topic?',                     'Yes — edit <code>learn.html</code> directly, follow the existing collapsible / .opt pattern. Open a PR or issue.'],
+        ['How do I jump to a section?',            'Each top-level section has an id (<code>#launcher</code>, <code>#ini</code>, <code>#esp32</code>, <code>#crash</code>, <code>#webserial</code>). Deep-link from anywhere.'],
+      ],
+      howto: [
+        '<strong>1.</strong> Skim the section headers — pick what you want to dig into.',
+        '<strong>2.</strong> Read the option/directive cards top-down — each has a what/under-the-hood/failure-modes block.',
+        '<strong>3.</strong> Follow cross-links to <a href="audit.html">audit.html</a> for incident forensics.',
+        '<strong>4.</strong> Copy code snippets with the COPY button on each <code>&lt;pre&gt;</code>.',
+      ],
+      wiki: [
+        ['🚀 launch.sh',     'All 20 menu options · grouped by section · with underlying CLI command + failure modes.'],
+        ['⚙️ platformio.ini', 'Every directive in our config + commonly-needed extras (partitions, monitor_filters, upload_protocol).'],
+        ['💡 ESP32-C3',     'RMT channels · partition layout · USB CDC vs UART · GPIO strapping pins.'],
+        ['🐛 addr2line',    'MCAUSE table · address-range cheat sheet · flag reference · common signatures.'],
+        ['📡 Web Serial',   'Browser support · security model · minimal code example.'],
+      ],
+    },
+
     /* ── Instructor — workshop teacher running a class ── */
     'instructor': {
       faq: [
@@ -386,6 +409,7 @@
           <label class="sidebar-label">📋 Project</label>
           <a href="index.html"        class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🏠 Home</a>
           <a href="start-here.html"   class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">📖 Dev / Start here</a>
+          <a href="learn.html"        class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🔬 Tech deep-dive</a>
           <a href="user-guide.html"   class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🎮 User guide</a>
           <a href="build-guide.html"  class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🛠️ Build guide</a>
           <a href="instructor.html"   class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🎓 Instructor</a>
