@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="lab-light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Build Guide — ESP32-C3 Robot</title>
+<link rel="stylesheet" href="assets/wdiy-template.css">
+<style>
+.app { max-width: 980px; }
+
+code {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent); padding: 1px 6px; border-radius: 4px;
+  font-size: .82em; font-family: ui-monospace, Menlo, Consolas, monospace;
+}
+.light-theme code { color: var(--text); }
+
+.intro { font-size: .92em; color: var(--text); line-height: 1.6; margin: 0 0 14px; padding: 0 4px; }
+
+/* ── BOM table ── */
+.bom-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: .85em; }
+.bom-table th, .bom-table td {
+  text-align: left; padding: 8px 10px;
+  border-bottom: 1px solid var(--border); vertical-align: top;
+}
+.bom-table th {
+  font-family: var(--font-h); font-size: .76em;
+  color: var(--accent2); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.bom-table tr:hover td { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.bom-table .qty { font-weight: 700; color: var(--accent); white-space: nowrap; }
+.bom-table .where { font-size: .82em; color: var(--text-muted); }
+.bom-total {
+  font-family: var(--font-h); font-size: .9em;
+  text-transform: uppercase; letter-spacing: .04em;
+  padding: 10px 14px; border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent); margin-top: 10px;
+  display: inline-block;
+}
+.light-theme .bom-total { color: var(--text); }
+
+/* ── Tools grid ── */
+.tools-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px; margin: 12px 0;
+}
+.tool {
+  background: rgba(0,0,0,.04);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px; text-align: center;
+}
+.tool .icon { font-size: 28px; display: block; margin-bottom: 4px; }
+.tool .name { font-family: var(--font-h); font-size: .82em; color: var(--accent); text-transform: uppercase; letter-spacing: .03em; }
+.tool .note { font-size: .76em; color: var(--text-muted); margin-top: 4px; }
+
+/* ── Wiring diagram ── */
+.wire-diagram {
+  background: rgba(0,0,0,.04);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 16px; margin: 12px 0;
+}
+.wire-diagram svg { width: 100%; height: auto; max-height: 360px; }
+
+/* ── Pin map table ── */
+.pin-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: .82em; }
+.pin-table th, .pin-table td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+.pin-table th { color: var(--accent2); font-family: var(--font-h); font-size: .74em; text-transform: uppercase; letter-spacing: .06em; }
+.pin-table .gpio { font-family: ui-monospace, monospace; color: var(--accent); font-weight: 700; }
+.pin-table .alert-cell { color: #ef4444; font-size: .78em; }
+
+/* ── Step-by-step ── */
+.assembly-step {
+  background: rgba(0,0,0,.04);
+  border-left: 4px solid var(--accent);
+  padding: 12px 16px; margin: 10px 0;
+  border-radius: 0 10px 10px 0;
+}
+.assembly-step h4 {
+  font-family: var(--font-h); font-size: .9em;
+  color: var(--accent); margin: 0 0 6px;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.assembly-step .step-num {
+  display: inline-block; width: 28px; height: 28px; line-height: 28px;
+  background: linear-gradient(135deg, var(--accent), var(--band2));
+  color: var(--bg);
+  border-radius: 50%; text-align: center; font-weight: 800; font-size: .8em;
+  margin-right: 8px;
+}
+.assembly-step .est { float: right; font-size: .78em; color: var(--text-muted); }
+.assembly-step ul { padding-left: 22px; margin: 6px 0; }
+.assembly-step li { font-size: .85em; color: var(--text); line-height: 1.55; margin-bottom: 4px; }
+
+/* ── Alerts ── */
+.alert {
+  border-left: 3px solid var(--accent);
+  padding: 12px 16px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border-radius: 0 8px 8px 0; margin: 12px 0;
+  font-size: .85em; line-height: 1.55;
+}
+.alert.warn   { border-left-color: #f59e0b; background: rgba(245,158,11,.10); }
+.alert.danger { border-left-color: #ef4444; background: rgba(239,68,68,.10); }
+.alert.win    { border-left-color: #22c55e; background: rgba(34,197,94,.10); }
+.alert strong { display: block; margin-bottom: 4px; font-size: .8em; letter-spacing: .04em; color: var(--accent); }
+.alert.warn   strong { color: #f59e0b; }
+.alert.danger strong { color: #ef4444; }
+.alert.win    strong { color: #22c55e; }
+
+.foot-note { font-size: .82em; color: var(--text-muted); text-align: center; padding: 14px 4px 4px; line-height: 1.55; }
+
+ul.simple { padding-left: 22px; margin: 8px 0; }
+ul.simple li { font-size: .86em; color: var(--text); line-height: 1.6; margin-bottom: 4px; }
+
+p.lead { font-size: .9em; color: var(--text); line-height: 1.6; margin: 0 0 10px; }
+
+details.collapsible > summary { font-size: .92rem; }
+</style>
+</head>
+
+<body
+  data-app-title="Build Guide"
+  data-app-subtitle="📋 BOM · 🔌 wire · 🛠️ assemble · ⚡ flash"
+  data-help-page="build-guide"
+  data-default-theme="lab-light"
+  data-status-text="Workbench"
+  data-status-online="true">
+
+<div class="app">
+  <div class="rows-container">
+
+    <p class="intro">
+      Build your own Robot-01 from parts. Total bench time: <strong>about 4 hours</strong> (2 h soldering, 1 h assembly, 1 h debug).
+      Skill level: comfortable with a soldering iron, willing to read schematics.
+      Cost: roughly <strong>USD 30–45</strong> depending on where you buy.
+    </p>
+
+    <!-- ═══ STEP 1 — BOM ═══ -->
+    <details class="collapsible" id="bom" open>
+      <summary>📋 1 — Bill of Materials</summary>
+      <div class="card">
+        <p class="lead">Buy these. Links go to AliExpress for cheap, but Adafruit/SparkFun also stock everything.</p>
+
+        <table class="bom-table">
+          <tr><th>Part</th><th>Qty</th><th>Where</th><th>Notes</th></tr>
+          <tr>
+            <td><strong>ESP32-C3 Super Mini</strong></td>
+            <td class="qty">×1</td>
+            <td class="where">AliExpress / Adafruit</td>
+            <td>Tiny RISC-V dev board with WiFi + BT + USB-C. ~$2.</td>
+          </tr>
+          <tr>
+            <td><strong>SG90 micro-servo (continuous rotation)</strong></td>
+            <td class="qty">×2</td>
+            <td class="where">AliExpress</td>
+            <td>360° version, NOT positional. ~$3 each.</td>
+          </tr>
+          <tr>
+            <td><strong>WS2812B NeoPixel ring or strip (4 LEDs)</strong></td>
+            <td class="qty">×1</td>
+            <td class="where">Adafruit / AliExpress</td>
+            <td>5 V, addressable. A 4-LED jewel works. ~$3.</td>
+          </tr>
+          <tr>
+            <td><strong>HC-SR04 ultrasonic distance sensor</strong></td>
+            <td class="qty">×1</td>
+            <td class="where">AliExpress</td>
+            <td>5 V; we'll level-shift to 3.3 V. ~$2.</td>
+          </tr>
+          <tr>
+            <td><strong>SSD1306 OLED 128×32 (I²C)</strong></td>
+            <td class="qty">×1</td>
+            <td class="where">AliExpress</td>
+            <td>Any I²C address (0x3C or 0x3D works). ~$3.</td>
+          </tr>
+          <tr>
+            <td><strong>Passive piezo buzzer</strong></td>
+            <td class="qty">×1</td>
+            <td class="where">AliExpress</td>
+            <td>Passive, not active — we drive frequencies. ~$0.50.</td>
+          </tr>
+          <tr>
+            <td><strong>LiPo battery 3.7 V, 600 mAh, JST-PH connector</strong></td>
+            <td class="qty">×1</td>
+            <td class="where">Adafruit / AliExpress</td>
+            <td>~$8. Pick one with built-in protection circuit.</td>
+          </tr>
+          <tr>
+            <td><strong>TP4056 USB-C charger module</strong></td>
+            <td class="qty">×1</td>
+            <td class="where">AliExpress</td>
+            <td>1A charge current. With protection IC variant. ~$1.</td>
+          </tr>
+          <tr>
+            <td><strong>SPDT mini slide switch</strong></td>
+            <td class="qty">×1</td>
+            <td class="where">AliExpress</td>
+            <td>For the on/off switch. ~$0.30.</td>
+          </tr>
+          <tr>
+            <td><strong>3D-printed chassis + wheels + servo horns</strong></td>
+            <td class="qty">×1 set</td>
+            <td class="where"><a href="../03_3d/">03_3d/</a></td>
+            <td>STL files in the project. PLA, ~30 g of filament.</td>
+          </tr>
+          <tr>
+            <td><strong>M2×6 mm screws</strong></td>
+            <td class="qty">×8</td>
+            <td class="where">Hardware store</td>
+            <td>For mounting board, sensors, OLED.</td>
+          </tr>
+          <tr>
+            <td><strong>Hookup wire (24 AWG, 4 colors)</strong></td>
+            <td class="qty">~1 m</td>
+            <td class="where">Any electronics store</td>
+            <td>Stranded silicone wire is easiest.</td>
+          </tr>
+          <tr>
+            <td><strong>Heat-shrink tubing</strong></td>
+            <td class="qty">~50 cm</td>
+            <td class="where">Any electronics store</td>
+            <td>2 mm and 4 mm diameters.</td>
+          </tr>
+        </table>
+
+        <span class="bom-total">≈ USD 30–45 total</span>
+
+        <div class="alert">
+          <strong>// SHIPPING REALITY</strong>
+          AliExpress is the cheapest by far but ships in 2–4 weeks. If you're in a hurry, Adafruit / SparkFun / Pimoroni ship in 2–3 days for ~2× the price.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══ STEP 2 — TOOLS ═══ -->
+    <details class="collapsible" id="tools">
+      <summary>🛠️ 2 — Tools you'll need</summary>
+      <div class="card">
+        <div class="tools-grid">
+          <div class="tool">
+            <span class="icon">🔥</span>
+            <div class="name">Soldering iron</div>
+            <div class="note">25–40 W, fine tip</div>
+          </div>
+          <div class="tool">
+            <span class="icon">🪡</span>
+            <div class="name">Solder</div>
+            <div class="note">0.5 mm leaded or lead-free</div>
+          </div>
+          <div class="tool">
+            <span class="icon">✂️</span>
+            <div class="name">Wire strippers</div>
+            <div class="note">For 24 AWG</div>
+          </div>
+          <div class="tool">
+            <span class="icon">🔧</span>
+            <div class="name">Small screwdriver</div>
+            <div class="note">Phillips PH00 + flathead</div>
+          </div>
+          <div class="tool">
+            <span class="icon">🔬</span>
+            <div class="name">Multimeter</div>
+            <div class="note">Continuity + voltage</div>
+          </div>
+          <div class="tool">
+            <span class="icon">🖨️</span>
+            <div class="name">3D printer (optional)</div>
+            <div class="note">Or use a print service</div>
+          </div>
+          <div class="tool">
+            <span class="icon">🔥</span>
+            <div class="name">Heat gun / lighter</div>
+            <div class="note">For heat-shrink</div>
+          </div>
+          <div class="tool">
+            <span class="icon">💻</span>
+            <div class="name">Computer + USB-C cable</div>
+            <div class="note">For flashing firmware</div>
+          </div>
+        </div>
+        <div class="alert win">
+          <strong>// NICE-TO-HAVE</strong>
+          Helping hands / PCB vise · solder fume extractor · flux paste · spare 0.1″ headers (for prototyping) · breadboard (test wiring before soldering).
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══ STEP 3 — WIRING ═══ -->
+    <details class="collapsible" id="wiring">
+      <summary>🔌 3 — Wiring diagram &amp; pin map</summary>
+      <div class="card">
+        <p class="lead">All connections terminate at the ESP32-C3. Power flows: battery → switch → TP4056 → board's 5 V rail → 3.3 V regulator on the C3 → sensors.</p>
+
+        <div class="wire-diagram">
+          <svg viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace, monospace" font-size="11">
+            <!-- ESP32 box -->
+            <rect x="220" y="100" width="160" height="120" rx="6" fill="none" stroke="var(--accent)" stroke-width="2"/>
+            <text x="300" y="130" text-anchor="middle" fill="var(--accent)" font-size="13" font-weight="700">ESP32-C3</text>
+            <text x="300" y="146" text-anchor="middle" fill="var(--text-muted)" font-size="10">Super Mini</text>
+
+            <!-- Pin labels -->
+            <text x="225" y="170" fill="var(--text-muted)">GPIO 0</text>
+            <text x="225" y="185" fill="var(--text-muted)">GPIO 1</text>
+            <text x="225" y="200" fill="var(--text-muted)">GPIO 2</text>
+            <text x="225" y="215" fill="var(--text-muted)">GPIO 3</text>
+            <text x="375" y="170" text-anchor="end" fill="var(--text-muted)">GPIO 4</text>
+            <text x="375" y="185" text-anchor="end" fill="var(--text-muted)">GPIO 5</text>
+            <text x="375" y="200" text-anchor="end" fill="var(--text-muted)">GPIO 6</text>
+            <text x="375" y="215" text-anchor="end" fill="var(--text-muted)">GPIO 7</text>
+
+            <!-- Servo L -->
+            <rect x="40" y="60" width="100" height="40" rx="4" fill="none" stroke="var(--accent2)" stroke-width="1.5"/>
+            <text x="90" y="78" text-anchor="middle" fill="var(--accent2)" font-weight="700">Servo L</text>
+            <text x="90" y="92" text-anchor="middle" fill="var(--text-muted)">SG90 360°</text>
+            <line x1="140" y1="80" x2="220" y2="170" stroke="var(--accent)" stroke-width="1.5"/>
+
+            <!-- Servo R -->
+            <rect x="40" y="115" width="100" height="40" rx="4" fill="none" stroke="var(--accent2)" stroke-width="1.5"/>
+            <text x="90" y="133" text-anchor="middle" fill="var(--accent2)" font-weight="700">Servo R</text>
+            <text x="90" y="147" text-anchor="middle" fill="var(--text-muted)">SG90 360°</text>
+            <line x1="140" y1="135" x2="220" y2="185" stroke="var(--accent)" stroke-width="1.5"/>
+
+            <!-- NeoPixel -->
+            <rect x="40" y="170" width="100" height="40" rx="4" fill="none" stroke="var(--accent2)" stroke-width="1.5"/>
+            <text x="90" y="188" text-anchor="middle" fill="var(--accent2)" font-weight="700">NeoPixel ×4</text>
+            <text x="90" y="202" text-anchor="middle" fill="var(--text-muted)">WS2812B</text>
+            <line x1="140" y1="190" x2="220" y2="200" stroke="var(--accent)" stroke-width="1.5"/>
+
+            <!-- Buzzer -->
+            <rect x="40" y="225" width="100" height="40" rx="4" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="90" y="243" text-anchor="middle" fill="#f59e0b" font-weight="700">Buzzer</text>
+            <text x="90" y="257" text-anchor="middle" fill="var(--text-muted)">passive piezo</text>
+            <line x1="140" y1="245" x2="220" y2="215" stroke="var(--accent)" stroke-width="1.5"/>
+
+            <!-- HC-SR04 -->
+            <rect x="460" y="60" width="100" height="50" rx="4" fill="none" stroke="var(--accent2)" stroke-width="1.5"/>
+            <text x="510" y="80" text-anchor="middle" fill="var(--accent2)" font-weight="700">HC-SR04</text>
+            <text x="510" y="95" text-anchor="middle" fill="var(--text-muted)">trig+echo</text>
+            <line x1="460" y1="85" x2="380" y2="170" stroke="var(--accent)" stroke-width="1.5"/>
+            <line x1="460" y1="100" x2="380" y2="185" stroke="var(--accent)" stroke-width="1.5"/>
+
+            <!-- OLED -->
+            <rect x="460" y="125" width="100" height="40" rx="4" fill="none" stroke="var(--accent2)" stroke-width="1.5"/>
+            <text x="510" y="143" text-anchor="middle" fill="var(--accent2)" font-weight="700">OLED I²C</text>
+            <text x="510" y="157" text-anchor="middle" fill="var(--text-muted)">SDA + SCL</text>
+            <line x1="460" y1="145" x2="380" y2="200" stroke="var(--accent)" stroke-width="1.5"/>
+            <line x1="460" y1="155" x2="380" y2="215" stroke="var(--accent)" stroke-width="1.5"/>
+
+            <!-- Battery + TP4056 -->
+            <rect x="220" y="250" width="80" height="35" rx="4" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+            <text x="260" y="265" text-anchor="middle" fill="#22c55e" font-weight="700">3.7 V LiPo</text>
+            <text x="260" y="278" text-anchor="middle" fill="var(--text-muted)">600 mAh</text>
+            <line x1="260" y1="250" x2="260" y2="220" stroke="#22c55e" stroke-width="1.5"/>
+
+            <rect x="320" y="250" width="80" height="35" rx="4" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+            <text x="360" y="265" text-anchor="middle" fill="#22c55e" font-weight="700">TP4056</text>
+            <text x="360" y="278" text-anchor="middle" fill="var(--text-muted)">USB-C charge</text>
+            <line x1="360" y1="250" x2="360" y2="220" stroke="#22c55e" stroke-width="1.5"/>
+          </svg>
+        </div>
+
+        <h4 style="font-family:var(--font-h);color:var(--accent);text-transform:uppercase;letter-spacing:.03em;font-size:.9em;margin:14px 0 6px">Pin map</h4>
+        <table class="pin-table">
+          <tr><th>GPIO</th><th>What</th><th>Direction</th><th>Notes</th></tr>
+          <tr><td class="gpio">0</td><td>Servo L (signal)</td><td>OUT</td><td>PWM @ 50 Hz</td></tr>
+          <tr><td class="gpio">1</td><td>Servo R (signal)</td><td>OUT</td><td>PWM @ 50 Hz</td></tr>
+          <tr><td class="gpio">2</td><td>NeoPixel data</td><td>OUT</td><td>WS2812 800 kHz protocol via RMT</td></tr>
+          <tr><td class="gpio">3</td><td>Buzzer</td><td>OUT</td><td>PWM tones; <span class="alert-cell">moved from GPIO 4 (audit C1 fix)</span></td></tr>
+          <tr><td class="gpio">5</td><td>HC-SR04 TRIG</td><td>OUT</td><td>10 µs pulse to start measurement</td></tr>
+          <tr><td class="gpio">6</td><td>HC-SR04 ECHO</td><td>IN</td><td>Pulse width = distance × 58 µs/cm</td></tr>
+          <tr><td class="gpio">7</td><td>Battery ADC</td><td>IN</td><td>Voltage divider 100k / 100k</td></tr>
+          <tr><td class="gpio">8</td><td>OLED SDA (I²C)</td><td>I/O</td><td><span class="alert-cell">also drives onboard LED — see audit H1</span></td></tr>
+          <tr><td class="gpio">9</td><td>OLED SCL (I²C)</td><td>OUT</td><td><span class="alert-cell">also BOOT button — pull up needed (audit H2)</span></td></tr>
+        </table>
+
+        <div class="alert warn">
+          <strong>// LEVEL SHIFTING</strong>
+          The HC-SR04 is a 5 V part. Its echo signal can damage 3.3 V GPIOs over time. Add a simple 10 kΩ / 22 kΩ voltage divider on the ECHO line. The OLED is 3.3 V-tolerant — connect directly.
+        </div>
+        <div class="alert danger">
+          <strong>// KNOWN PIN CONFLICTS</strong>
+          See <a href="audit.html">audit page</a> items C1 (buzzer/battery), H1 (OLED SDA = LED), H2 (OLED SCL = BOOT). Resolved in this pin map but verify before soldering.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══ STEP 4 — ASSEMBLY ═══ -->
+    <details class="collapsible" id="assembly">
+      <summary>🛠️ 4 — Assembly — step by step</summary>
+      <div class="card">
+
+        <div class="assembly-step">
+          <h4><span class="step-num">1</span>Print the chassis<span class="est">~3 h print</span></h4>
+          <ul>
+            <li>Pull STL files from <code>03_3d/</code>: <code>chassis.stl</code>, <code>wheel.stl</code> (×2), <code>servo_horn.stl</code> (×2).</li>
+            <li>Slicer settings: 0.2 mm layer, 20% infill, no supports needed for chassis.</li>
+            <li>PLA in any color. ~30 g total filament.</li>
+          </ul>
+        </div>
+
+        <div class="assembly-step">
+          <h4><span class="step-num">2</span>Modify servos for continuous rotation<span class="est">~10 min</span></h4>
+          <ul>
+            <li>If you bought continuous-rotation versions (recommended), skip this step.</li>
+            <li>Otherwise: open the SG90, snip the position-feedback potentiometer's middle wire, replace with a 5 kΩ resistor divider (or buy the right kind).</li>
+          </ul>
+        </div>
+
+        <div class="assembly-step">
+          <h4><span class="step-num">3</span>Mount servos &amp; wheels<span class="est">~10 min</span></h4>
+          <ul>
+            <li>Press-fit the servos into the chassis side-cavities. Hold with 2× M2 screws each.</li>
+            <li>Attach the printed servo horns to the servo output shafts. Snap on the wheels.</li>
+            <li>Spin them by hand — should rotate freely with no rubbing.</li>
+          </ul>
+        </div>
+
+        <div class="assembly-step">
+          <h4><span class="step-num">4</span>Solder the power chain<span class="est">~30 min</span></h4>
+          <ul>
+            <li>Battery JST-PH → TP4056 <code>BAT+/BAT-</code>.</li>
+            <li>TP4056 <code>OUT+</code> → switch (SPDT, middle pin) → ESP32-C3 <code>5V</code>.</li>
+            <li>TP4056 <code>OUT-</code> → ESP32-C3 <code>GND</code>.</li>
+            <li>Test before connecting anything else: switch ON → multimeter on C3's 3V3 pin should read 3.30 ± 0.05 V.</li>
+          </ul>
+        </div>
+
+        <div class="assembly-step">
+          <h4><span class="step-num">5</span>Wire the servos<span class="est">~15 min</span></h4>
+          <ul>
+            <li>Servo L: signal → GPIO 0, V+ → 5 V, GND → GND.</li>
+            <li>Servo R: signal → GPIO 1, V+ → 5 V, GND → GND.</li>
+            <li>SG90 servos draw a stall current spike (~600 mA each). If your battery dips below 3.5 V on stall, add a 470 µF cap across the 5 V rail.</li>
+          </ul>
+        </div>
+
+        <div class="assembly-step">
+          <h4><span class="step-num">6</span>Wire the NeoPixels<span class="est">~10 min</span></h4>
+          <ul>
+            <li>NeoPixel <code>DIN</code> → GPIO 2. <code>+5V</code> → 5 V. <code>GND</code> → GND.</li>
+            <li>If using a strip cut to 4 LEDs, the data line goes to <strong>DIN</strong> (the input pad with the arrow pointing into the chip).</li>
+            <li>Add a 300–500 Ω resistor in series with DIN if your LEDs flicker.</li>
+          </ul>
+        </div>
+
+        <div class="assembly-step">
+          <h4><span class="step-num">7</span>Wire the buzzer<span class="est">~5 min</span></h4>
+          <ul>
+            <li>Buzzer <code>+</code> → GPIO 3 (NOT GPIO 4 — see audit C1).</li>
+            <li>Buzzer <code>−</code> → GND.</li>
+            <li>If it's loud-loud, add a 100 Ω series resistor.</li>
+          </ul>
+        </div>
+
+        <div class="assembly-step">
+          <h4><span class="step-num">8</span>Wire the ultrasonic sensor<span class="est">~15 min</span></h4>
+          <ul>
+            <li>HC-SR04 VCC → 5 V. GND → GND.</li>
+            <li>TRIG → GPIO 5 (direct, 3.3 V is enough to trigger).</li>
+            <li>ECHO → 10 kΩ → GPIO 6 → 22 kΩ → GND. (Voltage divider drops 5 V to ~3.4 V.)</li>
+          </ul>
+        </div>
+
+        <div class="assembly-step">
+          <h4><span class="step-num">9</span>Wire the OLED<span class="est">~10 min</span></h4>
+          <ul>
+            <li>VCC → 3.3 V (NOT 5 V — kills the screen).</li>
+            <li>GND → GND.</li>
+            <li>SDA → GPIO 8.</li>
+            <li>SCL → GPIO 9 + 10 kΩ pull-up to 3.3 V (BOOT button shares this pin — pull-up keeps it inactive at boot).</li>
+          </ul>
+        </div>
+
+        <div class="assembly-step">
+          <h4><span class="step-num">10</span>Final fit-check<span class="est">~10 min</span></h4>
+          <ul>
+            <li>Slot the C3 board into the chassis, wires routed through the channels.</li>
+            <li>OLED on top, NeoPixels at the front, ultrasonic eye centered.</li>
+            <li>Battery sits in the middle pocket, TP4056 and switch on the side.</li>
+            <li>Snap the top cover on.</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══ STEP 5 — 3D PARTS ═══ -->
+    <details class="collapsible" id="parts3d">
+      <summary>📐 5 — 3D-printed parts list</summary>
+      <div class="card">
+        <p class="lead">All STLs in <code>03_3d/</code>. Print at 0.2 mm layer height, 20 % infill, PLA. No supports needed.</p>
+
+        <table class="bom-table">
+          <tr><th>Part</th><th>File</th><th>Qty</th><th>Print time</th></tr>
+          <tr><td>Main chassis</td><td><code>chassis.stl</code></td><td class="qty">×1</td><td>~2 h</td></tr>
+          <tr><td>Top cover</td><td><code>cover.stl</code></td><td class="qty">×1</td><td>~30 min</td></tr>
+          <tr><td>Wheel</td><td><code>wheel.stl</code></td><td class="qty">×2</td><td>~20 min each</td></tr>
+          <tr><td>Servo horn</td><td><code>servo_horn.stl</code></td><td class="qty">×2</td><td>~5 min each</td></tr>
+          <tr><td>OLED bezel</td><td><code>oled_bezel.stl</code></td><td class="qty">×1</td><td>~10 min</td></tr>
+          <tr><td>Sensor mount</td><td><code>sr04_mount.stl</code></td><td class="qty">×1</td><td>~10 min</td></tr>
+        </table>
+
+        <div class="alert">
+          <strong>// ALTERNATIVE</strong>
+          No printer? Order from JLCPCB/PCBWay (≈ USD 6–10) or use a local makerspace. Order all 6 parts at once to save shipping.
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══ STEP 6 — FIRST FLASH ═══ -->
+    <details class="collapsible" id="firstflash">
+      <summary>⚡ 6 — First firmware flash</summary>
+      <div class="card">
+        <p class="lead">With the robot fully assembled, plug it into your computer via USB-C and flash the firmware.</p>
+
+        <ol style="padding-left:22px">
+          <li style="margin:6px 0;font-size:.88em">Visit <a href="flash.html">flash.html</a> (this tool, in your browser).</li>
+          <li style="margin:6px 0;font-size:.88em">Click <strong>Connect &amp; install</strong>. Pick the <em>USB JTAG/Serial</em> port. Wait ~30 s.</li>
+          <li style="margin:6px 0;font-size:.88em">Switch the robot ON. You should hear the boot tune and see the rainbow LED sweep.</li>
+          <li style="margin:6px 0;font-size:.88em">Visit <a href="monitor.html">monitor.html</a>, click <strong>Connect</strong>, baud rate 115200. Watch the boot logs.</li>
+          <li style="margin:6px 0;font-size:.88em">Verify each subsystem reports OK: <code>servos: ok · neopixels: ok · oled: ok · ultrasonic: ok</code>.</li>
+          <li style="margin:6px 0;font-size:.88em">Open RemoteXY on your phone, pair, drive. See <a href="user-guide.html">user-guide.html</a> for end-user controls.</li>
+        </ol>
+
+        <div class="alert win">
+          <strong>// IT WORKS</strong>
+          Your robot is alive. From here, see <a href="start-here.html">start-here.html</a> for firmware customization and <a href="user-guide.html">user-guide.html</a> for everyday use.
+        </div>
+        <div class="alert warn">
+          <strong>// IT DOESN'T WORK</strong>
+          See <a href="start-here.html#bootreset">Mission 09 in start-here</a> for the BOOT/RESET trick. Or check the <a href="audit.html">audit page</a> for known issues.
+        </div>
+      </div>
+    </details>
+
+    <p class="foot-note">
+      Wiring or BOM unclear? Open an issue: <a href="https://github.com/abourdim/robot_1/issues" target="_blank" rel="noopener">github.com/abourdim/robot_1/issues</a>
+    </p>
+
+  </div><!-- .rows-container -->
+</div><!-- .app -->
+
+<script src="assets/wdiy-script.js"></script>
+<script src="assets/wdiy-shell.js"></script>
+</body>
+</html>

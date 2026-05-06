@@ -57,8 +57,31 @@ a.tile:hover {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 14px;
-  margin: 16px 0 24px;
+  margin: 12px 0 22px;
 }
+
+.grid-section {
+  font-family: var(--font-h);
+  font-size: .95em;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin: 22px 4px 6px;
+  font-weight: 700;
+}
+
+.tile-tag {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent2) 18%, transparent);
+  color: var(--accent2);
+  font-size: .72em;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.light-theme .tile-tag { background: color-mix(in srgb, var(--accent2) 14%, transparent); }
 
 .intro {
   font-size: .9em; color: var(--text); line-height: 1.6;
@@ -86,13 +109,41 @@ a.tile:hover {
       Pick a tool below — each one is self-contained, runs in your browser, and works offline.
     </p>
 
+    <h3 class="grid-section">📚 Guides — pick your audience</h3>
     <div class="grid">
+
+      <a class="tile" href="user-guide.html">
+        <span class="icon-big">🎮</span>
+        <h2>User Guide</h2>
+        <p>You got a Robot-01 — drive it! Power on, pair phone, controls, light/sound meanings, troubleshooting, safety.</p>
+        <span class="tile-tag">🦸 Kids · end users</span>
+      </a>
+
+      <a class="tile" href="build-guide.html">
+        <span class="icon-big">🛠️</span>
+        <h2>Build Guide</h2>
+        <p>Build your own from parts. BOM (~$30–45) · tools · wiring diagram · step-by-step assembly · 3D parts · first flash.</p>
+        <span class="tile-tag">🔧 Makers</span>
+      </a>
 
       <a class="tile" href="start-here.html">
         <span class="icon-big">📖</span>
-        <h2>Start Here</h2>
-        <p>New to the project? The full guide — layout, build, flash, debug, troubleshooting. 14 missions.</p>
+        <h2>Start Here · Dev</h2>
+        <p>Firmware deep-dive. Layout, .ino magic, platformio.ini, launcher, build pipeline, flash map, debug, Arduino IDE. 14 missions.</p>
+        <span class="tile-tag">💻 Developers</span>
       </a>
+
+      <a class="tile" href="instructor.html">
+        <span class="icon-big">🎓</span>
+        <h2>Instructor Guide</h2>
+        <p>Run a workshop. Prereqs · 90-min lesson plan · student FAQ · panic-button cheat sheet · post-session reset.</p>
+        <span class="tile-tag">🧑‍🏫 Teachers</span>
+      </a>
+
+    </div>
+
+    <h3 class="grid-section">🛠️ Tools — runs in your browser</h3>
+    <div class="grid">
 
       <a class="tile" href="flash.html">
         <span class="icon-big">⚡</span>

@@ -6,9 +6,19 @@ ESP32-C3 robot project — Arduino/PlatformIO firmware, browser-based flasher an
 
 **[abourdim.github.io/robot_1](https://abourdim.github.io/robot_1/)** — auto-deployed from `01_software/01_app/02_web/` on every push.
 
+### 📚 Guides — by audience
+
+| Guide | For | What it covers |
+|---|---|---|
+| [`user-guide.html`](https://abourdim.github.io/robot_1/user-guide.html) | 🦸 Kids · end users | Power on · pair phone · drive · light/sound meanings · troubleshooting · safety |
+| [`build-guide.html`](https://abourdim.github.io/robot_1/build-guide.html) | 🔧 Makers | BOM (~$30–45) · tools · wiring · step-by-step assembly · 3D parts · first flash |
+| [`start-here.html`](https://abourdim.github.io/robot_1/start-here.html) | 💻 Developers | Firmware walkthrough — layout, build, flash, debug, addr2line. 14 missions. |
+| [`instructor.html`](https://abourdim.github.io/robot_1/instructor.html) | 🧑‍🏫 Teachers | Prereqs · 90-min lesson plan · student FAQ · cheat sheet · reset checklist |
+
+### 🛠️ Tools — runs in your browser
+
 | Tool | What it does |
 |---|---|
-| [`start-here.html`](https://abourdim.github.io/robot_1/start-here.html) | 14-mission walkthrough — layout, build, flash, debug, troubleshooting |
 | [`flash.html`](https://abourdim.github.io/robot_1/flash.html) | Click-to-flash via Web Serial (Chrome/Edge) |
 | [`monitor.html`](https://abourdim.github.io/robot_1/monitor.html) | Live serial monitor in the browser |
 | [`audit.html`](https://abourdim.github.io/robot_1/audit.html) | Bug tracker · severity dashboard · BUG-NNN forensics |

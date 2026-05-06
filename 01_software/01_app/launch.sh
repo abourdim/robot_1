@@ -698,8 +698,8 @@ banner() {
     [ -z "$port" ] && port="${C_DIM}none${C_RST}"
 
     local bar; bar=$(printf '=%.0s' $(seq 1 $((BAR_WIDTH - 2))))
-    local l1_raw="${G_BOLT} ROBOT-37 LAUNCHER  .  ESP32-C3 firmware toolkit"
-    local l1="${C_BOLD}${C_CYN}${G_BOLT} ROBOT-37 LAUNCHER${C_RST}  ${C_DIM}.${C_RST}  ${C_YLW}ESP32-C3${C_RST} firmware toolkit"
+    local l1_raw="${G_BOLT} ROBOT-01 LAUNCHER  .  ESP32-C3 firmware toolkit"
+    local l1="${C_BOLD}${C_CYN}${G_BOLT} ROBOT-01 LAUNCHER${C_RST}  ${C_DIM}.${C_RST}  ${C_YLW}ESP32-C3${C_RST} firmware toolkit"
     local l2_raw="workshop-diy.org  .  hack stuff  .  break it twice"
     local l2="${C_DIM}workshop-diy.org  .  hack stuff  .  break it twice${C_RST}"
     local l3="${C_DIM}os:${C_RST} ${C_BLU}$OS${C_RST}   ${C_DIM}port:${C_RST} ${port}   ${C_DIM}pio:${C_RST} ${pio_status}"

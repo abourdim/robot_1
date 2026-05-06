@@ -185,6 +185,71 @@
         ['🔒 Privacy',   '100% local. Stays in your browser.'],
       ],
     },
+
+    /* ── User Guide — kid / end-user driving the robot ── */
+    'user-guide': {
+      faq: [
+        ['How do I turn it on?',     'Plug USB-C to charge, then flip the bottom switch. You\'ll hear the boot tune. See section 2.'],
+        ['How do I connect my phone?', 'Install RemoteXY (free), open it, scan, tap the robot, pair. See section 3.'],
+        ['What do the colors mean?', 'Lights = battery + status. See section 5 for the full color key.'],
+        ['It stopped working!',      'Check battery LEDs, then phone Bluetooth, then power-cycle the robot. See section 8.'],
+      ],
+      howto: [
+        '<strong>1.</strong> Power on with the bottom switch.',
+        '<strong>2.</strong> Open RemoteXY app on your phone.',
+        '<strong>3.</strong> Tap "Connect", pick the robot, pair.',
+        '<strong>4.</strong> Drive with the joystick · tap action button for tricks.',
+      ],
+      wiki: [
+        ['🤖 Robot-01',   'ESP32-C3 brain · 2 motors · 4 LEDs · OLED · ultrasonic sensor · buzzer.'],
+        ['📱 RemoteXY',   'Free phone app for Bluetooth control. iOS + Android.'],
+        ['🛡️ Safety',    'Don\'t drive off tables or stairs. Don\'t charge while wet.'],
+      ],
+    },
+
+    /* ── Build Guide — maker assembling from parts ── */
+    'build-guide': {
+      faq: [
+        ['Skill level needed?',    'Basic soldering. ~4 hours total bench time.'],
+        ['Total cost?',            'USD 30–45 depending on supplier (AliExpress cheapest, ships slow).'],
+        ['Can I substitute parts?', 'ESP32-C3 is fixed. Servos can be other 5 V continuous-rotation. NeoPixel count must match firmware config.'],
+        ['Where do the STLs live?', '<code>03_3d/</code> in the project — chassis, cover, wheels, mounts.'],
+      ],
+      howto: [
+        '<strong>1.</strong> Buy the BOM (section 1).',
+        '<strong>2.</strong> Print the chassis from <code>03_3d/</code>.',
+        '<strong>3.</strong> Solder following the wire diagram (section 3).',
+        '<strong>4.</strong> Assemble (section 4).',
+        '<strong>5.</strong> Flash firmware via <a href="flash.html">flash.html</a>.',
+      ],
+      wiki: [
+        ['📋 BOM',       '12 parts · ESP32-C3 + 2 servos + 4 NeoPixels + ultrasonic + OLED + buzzer + battery + charger.'],
+        ['🔌 Pin map',   'GPIOs documented in section 3. Note pin conflicts (audit C1, H1, H2).'],
+        ['🖨️ 3D parts', '6 STL files · ~3 h total print at 0.2 mm / 20 % infill PLA.'],
+      ],
+    },
+
+    /* ── Instructor — workshop teacher running a class ── */
+    'instructor': {
+      faq: [
+        ['How long is a session?',     '90 minutes for ages 9–14, group of 4–8. Adapt timing for younger / older.'],
+        ['What if a robot breaks mid-class?', 'Swap to a spare. Don\'t troubleshoot in front of impatient kids — debug after.'],
+        ['Battery management?',        'Charge every robot the night before. Keep 2 spares fully charged. Battery dip is the #1 mid-session failure.'],
+        ['Do I need Wi-Fi?',           'Optional. Robots use Bluetooth. Web tools work offline if you serve locally with <code>./launch.sh serve</code>.'],
+      ],
+      howto: [
+        '<strong>1.</strong> Charge robots the night before.',
+        '<strong>2.</strong> 30 min before: pre-pair your demo robot, project user-guide.html.',
+        '<strong>3.</strong> Run the 90-min lesson plan (section 2).',
+        '<strong>4.</strong> Use the cheat sheet (section 4) when things go sideways.',
+        '<strong>5.</strong> Run reset checklist (section 5) between groups.',
+      ],
+      wiki: [
+        ['📋 Lesson plan',  '8-segment, 90 min flow — welcome → demo → power → pair → free play → lights/sounds → mini-challenge → wrap.'],
+        ['🆘 Cheat sheet',  'Robot · phone · laptop · behavioral fixes — each in 30 seconds.'],
+        ['🔁 Reset',        'Power, hardware, phone, logging, space — checklist persists per browser tab.'],
+      ],
+    },
   };
 
   /* ─────────────────────────────────────────────────────────
@@ -320,7 +385,10 @@
         <div class="sidebar-group">
           <label class="sidebar-label">📋 Project</label>
           <a href="index.html"        class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🏠 Home</a>
-          <a href="start-here.html"   class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">📖 Start here</a>
+          <a href="start-here.html"   class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">📖 Dev / Start here</a>
+          <a href="user-guide.html"   class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🎮 User guide</a>
+          <a href="build-guide.html"  class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🛠️ Build guide</a>
+          <a href="instructor.html"   class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🎓 Instructor</a>
           <a href="flash.html"        class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">⚡ Flasher</a>
           <a href="monitor.html"      class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">📡 Monitor</a>
           <a href="audit.html"        class="btn-sm" style="display:inline-flex;align-items:center;gap:4px">📋 Audit</a>
@@ -328,7 +396,7 @@
       </div>
       <div class="sidebar-footer">
         <span>Workshop DIY v1.2</span>
-        <span>Robot-37 · ESP32-C3</span>
+        <span>Robot-01 · ESP32-C3</span>
       </div>
     </div>`;
 
