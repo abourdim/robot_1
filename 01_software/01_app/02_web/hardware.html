@@ -58,6 +58,38 @@ p.lead  { font-size: .9em; color: var(--text); line-height: 1.6; margin: 0 0 10p
   text-decoration: none;
 }
 
+/* ── Hero render ── */
+.pcb-hero {
+  position: relative;
+  margin: 0 0 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 8%, transparent),
+    color-mix(in srgb, var(--accent2) 8%, transparent));
+}
+.pcb-hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 540px;
+  object-fit: contain;
+  background: #c0c5d0;
+}
+.light-theme .pcb-hero img { background: #e8ecf3; }
+.pcb-hero figcaption {
+  position: absolute;
+  left: 12px; bottom: 12px;
+  padding: 6px 12px;
+  background: rgba(0,0,0,.65);
+  color: #fff;
+  font: 600 .75em ui-monospace, monospace;
+  border-radius: 6px;
+  letter-spacing: .04em;
+  backdrop-filter: blur(4px);
+}
+
 /* ── PCB viewer ── */
 .pcb-viewer {
   background: #fff;
@@ -259,12 +291,20 @@ details.collapsible > summary { font-size: .92rem; }
       </div>
     </div>
 
+    <!-- ═══ HERO 3D RENDER ═══ -->
+    <figure class="pcb-hero">
+      <img src="hardware/v3/37_rich_light_move_v3.png"
+           alt="3D render of the v3 PCB — top view showing buzzer, NeoPixels D1-D4, motor terminals, ESP32-C3 module, and HC-SR04 header"
+           loading="lazy">
+      <figcaption>v3 · 3D render · top view</figcaption>
+    </figure>
+
     <!-- ═══ § 1 — PCB VIEWER ═══ -->
     <details class="collapsible" id="pcb" open>
       <summary>🟫 1 — PCB layer browser</summary>
       <div class="card">
 
-        <p class="lead">Toggle layers to see what's on each side. Default view: front silkscreen + front copper + board outline.</p>
+        <p class="lead">Toggle layers to see what's on each side. Default view: front silkscreen + front copper + board outline. Compare with the 3D render above to map silkscreen labels to physical components.</p>
 
         <div class="layer-bar" role="group" aria-label="Layer toggles">
           <button class="layer-toggle active" data-layer="board"   aria-pressed="true">
@@ -379,9 +419,9 @@ details.collapsible > summary { font-size: .92rem; }
             <span class="pins">VCC · 5V · GPIO 10</span>
           </div>
           <div class="conn">
-            <h4>J6 <span class="pintype">4-pin</span></h4>
-            <p>External I²C / sensor — likely for an ultrasonic distance sensor (HC-SR04) or expansion I²C device.</p>
-            <span class="pins">5V · TBD · TBD · GPIO 21</span>
+            <h4>J6 <span class="pintype">4-pin · HC-SR04</span></h4>
+            <p>Ultrasonic distance sensor header. PCB silkscreen labels the four pads <code>vcc · trig · echo · gnd</code> — drop-in for a standard HC-SR04 module.</p>
+            <span class="pins">VCC · TRIG · ECHO · GND  (signal pins routed to GPIO 20 / 21)</span>
           </div>
           <div class="conn">
             <h4>J7 <span class="pintype">2-pin</span></h4>
