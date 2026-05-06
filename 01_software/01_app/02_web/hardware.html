@@ -90,6 +90,33 @@ p.lead  { font-size: .9em; color: var(--text); line-height: 1.6; margin: 0 0 10p
   backdrop-filter: blur(4px);
 }
 
+/* ── Schematic embed ── */
+.schematic-frame {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  overflow: auto;
+  max-height: 720px;
+  position: relative;
+}
+.light-theme .schematic-frame { box-shadow: 0 4px 14px rgba(0,0,0,.06); }
+.schematic-frame object {
+  display: block;
+  width: 100%;
+  min-width: 1200px;     /* schematic is wide — let it overflow horizontally on small screens */
+  height: auto;
+  background: #fff;
+}
+.schematic-controls {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin: 10px 0 6px;
+  align-items: center;
+}
+.schematic-controls .hint {
+  font-size: .76em; color: var(--text-muted); margin-left: auto;
+}
+
 /* ── PCB viewer ── */
 .pcb-viewer {
   background: #fff;
@@ -283,7 +310,8 @@ details.collapsible > summary { font-size: .92rem; }
         <span>Schematic: 2025-07-28 · PCB: 2025-06-21 · KiCad 7.0.6 · workshop-diy.org</span>
       </div>
       <div class="v-actions">
-        <a href="https://github.com/abourdim/robot_1/blob/master/02_hardware/v3/37_rich_light_move_v3.kicad_sch" target="_blank" rel="noopener">📐 .kicad_sch</a>
+        <a href="hardware/v3/37_rich_light_move_v3-schematic.svg" target="_blank" rel="noopener">📐 Schematic SVG</a>
+        <a href="https://github.com/abourdim/robot_1/blob/master/02_hardware/v3/37_rich_light_move_v3.kicad_sch" target="_blank" rel="noopener">.kicad_sch</a>
         <a href="https://github.com/abourdim/robot_1/blob/master/02_hardware/v3/37_rich_light_move_v3.kicad_pcb" target="_blank" rel="noopener">🟫 .kicad_pcb</a>
         <a href="hardware/v3/bom/ibom.html" target="_blank">📋 Interactive BOM</a>
         <a href="https://github.com/abourdim/robot_1/blob/master/02_hardware/v3/production/37_richa_light_move_v3.zip" target="_blank" rel="noopener">📦 Gerbers</a>
@@ -299,39 +327,68 @@ details.collapsible > summary { font-size: .92rem; }
       <figcaption>v3 · 3D render · top view</figcaption>
     </figure>
 
-    <!-- ═══ § 1 — PCB VIEWER ═══ -->
-    <details class="collapsible" id="pcb" open>
-      <summary>🟫 1 — PCB layer browser</summary>
+    <!-- ═══ § 1 — SCHEMATIC ═══ -->
+    <details class="collapsible" id="schematic" open>
+      <summary>📐 1 — Schematic — full design</summary>
+      <div class="card">
+        <p class="lead">
+          Full schematic exported from KiCad as searchable SVG.
+          Use <kbd>Ctrl+F</kbd> in your browser to find a component reference (e.g. <code>R7</code>, <code>U1</code>, <code>JP2</code>) — the silkscreen text stays as real text.
+        </p>
+
+        <div class="schematic-controls">
+          <a href="hardware/v3/37_rich_light_move_v3-schematic.svg" target="_blank" rel="noopener"
+             style="font-family:var(--font-h);font-size:.78em;text-transform:uppercase;letter-spacing:.04em;padding:6px 12px;border-radius:6px;background:rgba(0,0,0,.3);color:var(--text);text-decoration:none;border:1px solid var(--border)">
+            🔍 Open full size in new tab
+          </a>
+          <span class="hint">Schematic exported 2025-07-28 · KiCad 7.0.6 · 1.6 MB · text-searchable</span>
+        </div>
+
+        <div class="schematic-frame">
+          <object data="hardware/v3/37_rich_light_move_v3-schematic.svg"
+                  type="image/svg+xml"
+                  aria-label="37_rich_light_move v3 schematic"></object>
+        </div>
+      </div>
+    </details>
+
+    <!-- ═══ § 2 — PCB VIEWER ═══ -->
+    <details class="collapsible" id="pcb">
+      <summary>🟫 2 — PCB layer browser</summary>
       <div class="card">
 
-        <p class="lead">Toggle layers to see what's on each side. Default view: front silkscreen + front copper + board outline. Compare with the 3D render above to map silkscreen labels to physical components.</p>
+        <p class="lead">Toggle layers to see what's on each side. Compare with the 3D render above to map silkscreen labels to physical components.</p>
 
         <div class="layer-bar" role="group" aria-label="Layer toggles">
-          <button class="layer-toggle active" data-layer="board"   aria-pressed="true">
+          <button class="layer-toggle active" data-layer="board"    aria-pressed="true">
             <span class="dot"></span> Board outline
           </button>
-          <button class="layer-toggle active" data-layer="copper"  aria-pressed="true">
+          <button class="layer-toggle active" data-layer="copper"   aria-pressed="true">
             <span class="dot"></span> Front copper
           </button>
-          <button class="layer-toggle active" data-layer="silk"    aria-pressed="true">
+          <button class="layer-toggle active" data-layer="silk"     aria-pressed="true">
             <span class="dot"></span> Front silkscreen
           </button>
-          <button class="layer-toggle"        data-layer="court"   aria-pressed="false">
+          <button class="layer-toggle"        data-layer="court"    aria-pressed="false">
             <span class="dot"></span> Front courtyard
           </button>
-          <button class="layer-toggle"        data-layer="bcopper" aria-pressed="false">
+          <button class="layer-toggle"        data-layer="bcopper"  aria-pressed="false">
             <span class="dot"></span> Back copper
+          </button>
+          <button class="layer-toggle"        data-layer="bsilk"    aria-pressed="false">
+            <span class="dot"></span> Back silkscreen
           </button>
         </div>
         <p class="layer-note">SVGs are rendered to <code>02_hardware/v3/</code> by KiCad's <em>File → Plot → SVG</em>. Bundled to Pages by the deploy workflow.</p>
 
         <div class="pcb-viewer">
           <div class="pcb-stage" id="pcb-stage">
-            <object data="hardware/v3/37_rich_light_move_v3-Edge_Cuts.svg"   type="image/svg+xml" data-layer="board"   aria-label="board outline"></object>
-            <object data="hardware/v3/37_rich_light_move_v3-F_Cu.svg"        type="image/svg+xml" data-layer="copper"  aria-label="front copper"></object>
+            <object data="hardware/v3/37_rich_light_move_v3-Edge_Cuts.svg"    type="image/svg+xml" data-layer="board"   aria-label="board outline"></object>
+            <object data="hardware/v3/37_rich_light_move_v3-F_Cu.svg"         type="image/svg+xml" data-layer="copper"  aria-label="front copper"></object>
             <object data="hardware/v3/37_rich_light_move_v3-F_Silkscreen.svg" type="image/svg+xml" data-layer="silk"    aria-label="front silkscreen"></object>
-            <object data="hardware/v3/37_rich_light_move_v3-F_Courtyard.svg" type="image/svg+xml" data-layer="court"   aria-label="front courtyard" style="display:none"></object>
-            <object data="hardware/v3/37_rich_light_move_v3-B_Cu.svg"        type="image/svg+xml" data-layer="bcopper" aria-label="back copper" style="display:none"></object>
+            <object data="hardware/v3/37_rich_light_move_v3-F_Courtyard.svg"  type="image/svg+xml" data-layer="court"   aria-label="front courtyard" style="display:none"></object>
+            <object data="hardware/v3/37_rich_light_move_v3-B_Cu.svg"         type="image/svg+xml" data-layer="bcopper" aria-label="back copper" style="display:none"></object>
+            <object data="hardware/v3/37_rich_light_move_v3-B_Silkscreen.svg" type="image/svg+xml" data-layer="bsilk"   aria-label="back silkscreen" style="display:none"></object>
           </div>
         </div>
 
@@ -344,7 +401,7 @@ details.collapsible > summary { font-size: .92rem; }
 
     <!-- ═══ § 2 — PIN MAP ═══ -->
     <details class="collapsible" id="pinmap">
-      <summary>🔌 2 — ESP32-C3 GPIO pin map (from v3 schematic)</summary>
+      <summary>🔌 3 — ESP32-C3 GPIO pin map (from v3 schematic)</summary>
       <div class="card">
 
         <p class="lead">All GPIOs as actually wired in the v3 schematic — single source of truth.</p>
@@ -387,7 +444,7 @@ details.collapsible > summary { font-size: .92rem; }
 
     <!-- ═══ § 3 — CONNECTORS ═══ -->
     <details class="collapsible" id="connectors">
-      <summary>🔗 3 — Connectors — what plugs where</summary>
+      <summary>🔗 4 — Connectors — what plugs where</summary>
       <div class="card">
 
         <p class="lead">11 connectors on the board. The 3-pin ones follow the standard servo pinout (V+/GND/signal); 2-pin pads are motor outputs; 4-pin is for external I²C / sensor.</p>
@@ -454,7 +511,7 @@ details.collapsible > summary { font-size: .92rem; }
 
     <!-- ═══ § 4 — KEY ICs ═══ -->
     <details class="collapsible" id="ics">
-      <summary>🧩 4 — Key ICs on the board</summary>
+      <summary>🧩 5 — Key ICs on the board</summary>
       <div class="card">
 
         <table class="pinmap">
@@ -473,7 +530,7 @@ details.collapsible > summary { font-size: .92rem; }
 
     <!-- ═══ § 5 — NOTES FROM SCHEMATIC ═══ -->
     <details class="collapsible" id="notes">
-      <summary>📝 5 — Schematic revision notes</summary>
+      <summary>📝 6 — Schematic revision notes</summary>
       <div class="card">
 
         <p class="lead">The bottom-right of the v3 schematic carries two annotated revision notes from the designer:</p>
