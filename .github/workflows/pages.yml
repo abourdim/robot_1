@@ -1,0 +1,45 @@
+name: Deploy Web tools to GitHub Pages
+
+# Single source of truth: 01_software/01_app/02_web/
+# This workflow mirrors that folder to GitHub Pages on every push to master,
+# so the site URL https://abourdim.github.io/robot_1/ always reflects HEAD.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '01_software/01_app/02_web/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:   # manual trigger from Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deploy; cancel in-progress runs on new push
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 01_software/01_app/02_web
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

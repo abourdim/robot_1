@@ -406,8 +406,8 @@
     <footer class="app-footer">
       <span class="footer-text">
         <a href="https://workshop-diy.org" target="_blank" rel="noopener">workshop-diy.org</a>
-        · ESP32-C3 Robot · arduino-esp32 ·
-        <a href="audit.html">audit</a>
+        · <a href="https://github.com/abourdim/robot_1" target="_blank" rel="noopener" title="Source on GitHub">⭐ github</a>
+        · ESP32-C3 Robot · <a href="audit.html">audit</a>
       </span>
     </footer>`;
 
