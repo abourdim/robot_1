@@ -909,43 +909,24 @@ function resetPetSleep() {
 /* ═══════ NIGHT MODE (sunset auto-detect) ═══════ */
 
 function initNightMode() {
-  // Calculate approximate sunset using date + rough estimate
-  // More accurate with geolocation, but works without it
+  // Simple clock check — no geolocation, no permission prompt.
+  // After 21:00 or before 06:00, auto-apply a dark theme IF the user
+  // hasn't picked one manually yet.
   const hour = new Date().getHours();
   const isNight = hour >= 21 || hour < 6;
+  if (!isNight) return;
 
-  if (isNight) {
-    // Only auto-apply if user hasn't manually set a theme
-    try {
-      const manual = localStorage.getItem('wdiy-theme');
-      if (!manual) {
-        setTheme('lab-dark'); // calm dark theme
-        log('🌙 Night mode — time to rest', 'info');
-      }
-    } catch {}
-  }
-
-  // Try geolocation for more precise sunset
-  if ('geolocation' in navigator) {
-    navigator.geolocation.getCurrentPosition(pos => {
-      const sunset = calcSunset(pos.coords.latitude, pos.coords.longitude);
-      const now = new Date();
-      const nowMins = now.getHours() * 60 + now.getMinutes();
-      if (nowMins >= sunset || nowMins < 360) { // after sunset or before 6am
-        try {
-          const manual = localStorage.getItem('wdiy-theme');
-          if (!manual) {
-            setTheme('lab-dark');
-            log('🌙 Night detected — sweet dreams', 'info');
-          }
-        } catch {}
-      }
-    }, () => {}, { timeout: 3000 });
-  }
+  try {
+    const manual = localStorage.getItem('wdiy-theme');
+    if (!manual) {
+      setTheme('lab-dark');
+      log('🌙 Night mode — time to rest', 'info');
+    }
+  } catch {}
 }
 
 function calcSunset(lat, lng) {
-  // Simplified sunset calculation (returns minutes since midnight)
+  // Kept for API compatibility — no longer called.
   const d = new Date();
   const N = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
   const radLat = lat * Math.PI / 180;
