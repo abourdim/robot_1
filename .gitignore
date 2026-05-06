@@ -1,0 +1,34 @@
+# ─── Build caches & artifacts ─────────────────────────────────
+**/.pio/
+**/node_modules/
+**/build/
+**/build_output/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/.cache/
+
+# ─── Editor / IDE ─────────────────────────────────────────────
+**/.vscode/
+**/.idea/
+**/.vs/
+*.swp
+*.swo
+
+# ─── Tooling state ────────────────────────────────────────────
+**/.claude/
+
+# ─── Logs ─────────────────────────────────────────────────────
+**/03_logs/
+**/logs/
+*.log
+
+# ─── OS junk ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.stackdump
+
+# ─── Secrets ──────────────────────────────────────────────────
+**/secrets.h
+.env
+.env.local
