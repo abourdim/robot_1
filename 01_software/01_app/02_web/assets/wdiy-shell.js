@@ -229,6 +229,29 @@
       ],
     },
 
+    /* ── Hardware — KiCad schematic + PCB browser ── */
+    'hardware': {
+      faq: [
+        ['Where is the schematic source?',  '<code><a href="https://github.com/abourdim/robot_1/tree/master/02_hardware/v3">02_hardware/v3/</a></code> — KiCad 7. The <code>.kicad_sch</code> is plain S-expression text.'],
+        ['Can I open it without KiCad?',    'Yes — the live page renders all 5 PCB layers as toggleable SVGs. For the schematic itself, KiCad 7+ is needed.'],
+        ['What chip drives the motors?',    '<strong>TB6612FNG</strong> dual H-bridge — handles 2 DC motors at up to 1.2 A each. PWMA + AIN1/AIN2 for motor A; PWMB + BIN1/BIN2 for motor B.'],
+        ['Is this still a v3 board?',       'Yes — v3 is the current revision (June–July 2025). v1 and v2 are archived in their own folders.'],
+        ['Can I order a board?',            'Send <code>02_hardware/v3/production/37_richa_light_move_v3.zip</code> (the gerbers) to JLCPCB / PCBWay. ~$5 for 5 boards.'],
+      ],
+      howto: [
+        '<strong>1.</strong> Toggle layers on the PCB browser to see what\'s on each side.',
+        '<strong>2.</strong> Open the interactive BOM (<code>hardware/v3/bom/ibom.html</code>) — hover a part to see it highlighted on the board.',
+        '<strong>3.</strong> Read the GPIO pin map (§ 2) — single source of truth for firmware <code>00_config.h</code>.',
+        '<strong>4.</strong> Read the connector reference (§ 3) for what plugs into J1–J11.',
+      ],
+      wiki: [
+        ['🔌 ESP32-C3',  'MCU. Native USB-CDC. 13 GPIOs broken out.'],
+        ['⚙️ TB6612FNG', 'Dual H-bridge motor driver. STBY pull-up enables it.'],
+        ['🔋 Power',     'Battery → SK12D07VG4 switch → AMS1117-5.0 → 5 V rail. 3V3 from C3 onboard.'],
+        ['🔧 Jumpers',   'JP1: bridge GPIO 0 ↔ GPIO 20. JP2: GPIO 3 = motor PWMA <em>or</em> external J3.'],
+      ],
+    },
+
     /* ── Learn — technical deep-dive reference ── */
     'learn': {
       faq: [
@@ -410,6 +433,7 @@
           <a href="index.html"        class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🏠 Home</a>
           <a href="start-here.html"   class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">📖 Dev / Start here</a>
           <a href="learn.html"        class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🔬 Tech deep-dive</a>
+          <a href="hardware.html"     class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🔌 Hardware</a>
           <a href="user-guide.html"   class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🎮 User guide</a>
           <a href="build-guide.html"  class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🛠️ Build guide</a>
           <a href="instructor.html"   class="btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-bottom:6px">🎓 Instructor</a>

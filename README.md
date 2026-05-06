@@ -14,6 +14,7 @@ ESP32-C3 robot project — Arduino/PlatformIO firmware, browser-based flasher an
 | [`build-guide.html`](https://abourdim.github.io/robot_1/build-guide.html) | 🔧 Makers | BOM (~$30–45) · tools · wiring · step-by-step assembly · 3D parts · first flash |
 | [`start-here.html`](https://abourdim.github.io/robot_1/start-here.html) | 💻 Developers | Firmware narrative tour. 14 missions: layout, build, flash, debug. |
 | [`learn.html`](https://abourdim.github.io/robot_1/learn.html) | 🧠 Curious devs | Reference manual. Every `launch.sh` option · `platformio.ini` directive · RMT · partition table · addr2line · Web Serial. |
+| [`hardware.html`](https://abourdim.github.io/robot_1/hardware.html) | ⚡ Hardware hackers | Live PCB browser. 5-layer toggle · GPIO pin map · connector reference · links to KiCad source + gerbers + interactive BOM. |
 | [`instructor.html`](https://abourdim.github.io/robot_1/instructor.html) | 🧑‍🏫 Teachers | Prereqs · 90-min lesson plan · student FAQ · cheat sheet · reset checklist |
 
 ### 🛠️ Tools — runs in your browser

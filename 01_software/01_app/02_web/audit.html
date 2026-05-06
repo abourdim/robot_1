@@ -1070,6 +1070,82 @@ Description: Périphérique série USB (COM8)</div>
         </div>
       </div>
 
+      <div class="bug" id="bug-010">
+        <div class="bug-hdr">
+          <span class="bug-id investigating">BUG-010</span>
+          <span class="bug-title">Firmware audit pin assertions don't match the v3 schematic</span>
+          <span class="bug-date">2026-05-06 09:58</span>
+          <span class="bug-status investigating">🔍 Investigating</span>
+        </div>
+        <div class="bug-body">
+          <div class="bug-row">
+            <div class="label">Symptom</div>
+            <div class="val">The firmware-side audit items (C1, H1, H2) describe pin conflicts that don't exist on the v3 board. Discovered when the v3 schematic was finally pulled into the repo at <code><a href="hardware.html">02_hardware/v3/</a></code>.</div>
+          </div>
+          <div class="bug-row">
+            <div class="label">v3 schematic — what's actually on the board</div>
+            <div class="val">
+              <strong>U1 = TB6612FNG dual H-bridge.</strong> Drives 2 DC motors (J8, J9). Pins:
+              <ul style="margin-left:18px;line-height:1.6">
+                <li><code>GPIO 1</code> = AIN1 + LEDs D5/D6 + J2</li>
+                <li><code>GPIO 2</code> = AIN2</li>
+                <li><code>GPIO 3</code> = PWMA <em>or</em> J3 (via JP2 solder jumper)</li>
+                <li><code>GPIO 6</code> = BIN1 + J4 servo</li>
+                <li><code>GPIO 7</code> = BIN2</li>
+                <li><code>GPIO 10</code> = PWMB + LEDs D7/D8 + J5 servo</li>
+              </ul>
+              <code>GPIO 0</code> = SW1 push-button (10 kΩ pull-up R2). <code>GPIO 4</code> = buzzer with transistor stage (R7/R8/R9). <code>GPIO 8/9</code> = OLED I²C with 10 kΩ pull-ups (R10/R11). <code>GPIO 20/21</code> = expansion (J6, J7).
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Pre-v3 audit items — re-verify</div>
+            <div class="val">
+              <strong>C1 (buzzer/battery on GPIO 4):</strong> v3 puts the buzzer on GPIO 4 with transistor amp; <em>no</em> battery sense is wired to GPIO 4. If firmware <code>00_config.h</code> still says <code>CONFIG_PIN_BATTERY = 4</code>, the firmware is reading random ADC noise — bug remains, but it's a firmware problem not a wiring problem.<br><br>
+              <strong>H1 (OLED SDA = onboard LED on GPIO 8):</strong> on the C3 SuperMini, GPIO 8 does double-duty as the onboard LED. The schematic uses GPIO 8 as I²C SDA with a 10 kΩ pull-up. Pull-up wins at boot; the LED behavior depends on whether the firmware actively pulls GPIO 8 low between I²C transactions. Likely benign in practice but worth confirming.<br><br>
+              <strong>H2 (OLED SCL = BOOT button on GPIO 9):</strong> v3 has GPIO 9 as I²C SCL with a 10 kΩ pull-up (R11). Pull-up keeps it high at boot, which is the BOOT-button-released state, so the chip boots normally. Hardware <strong>resolves</strong> the concern. This audit item can be marked done <em>provided the pull-up is populated</em> on the assembled board.
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Schematic-only items found</div>
+            <div class="val">
+              <ol style="margin-left:18px;line-height:1.6">
+                <li><strong>C1' (new):</strong> Firmware <code>05_buzzer.cpp</code> needs to be on GPIO 4 (matches schematic) — NOT GPIO 3 as the earlier audit C1 fix proposed. GPIO 3 is now PWMA for motor A.</li>
+                <li><strong>JP2 jumper state matters:</strong> firmware should NOT assume GPIO 3 is free for general use. If JP2 is in motor mode, GPIO 3 is PWMA. If JP2 reroutes to J3, GPIO 3 is whatever's plugged in (likely a NeoPixel strip).</li>
+                <li><strong>1000 µF bulk cap missing:</strong> per the 2025-07-28 schematic note, populate this if servos are connected to J2-J5, or stall current will brown out the C3.</li>
+                <li><strong>Protection diode missing:</strong> per the 2025-06-21 note, a reverse-biased 1N4148 on the PWMA / J3 line protects against servo back-EMF.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Action</div>
+            <div class="val">
+              <ol style="margin-left:18px;line-height:1.6">
+                <li>Re-read <code>01_src/00_config.h</code> against the new pin map. Update any <code>CONFIG_PIN_*</code> defines that conflict.</li>
+                <li>Mark C1, H1, H2 as either fixed-by-hardware or amended once verified.</li>
+                <li>Add the 1000 µF cap + 1N4148 to the BOM (already done in <a href="build-guide.html">build-guide</a>).</li>
+                <li>Re-run a full-board boot test on a v3-fab'd PCB before declaring resolution.</li>
+              </ol>
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Files</div>
+            <div class="val">
+              <div class="bug-files">
+                <span class="file">01_software/01_app/01_src/00_config.h</span>
+                <span class="file">01_software/01_app/01_src/05_buzzer.cpp</span>
+                <span class="file">02_hardware/v3/37_rich_light_move_v3.kicad_sch</span>
+                <span class="file">02_web/hardware.html</span>
+                <span class="file">02_web/build-guide.html</span>
+              </div>
+            </div>
+          </div>
+          <div class="bug-row">
+            <div class="label">Lesson</div>
+            <div class="val">Audit pin assertions need <strong>two-source verification</strong> — the firmware <code>00_config.h</code> defines, and the schematic. Whichever you write first, validate against the other before publishing. The earlier audit was firmware-only and made guesses about the hardware that turned out wrong on at least 5 GPIOs.</div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- .bugs-section -->
 
   </div><!-- .rows-container -->
