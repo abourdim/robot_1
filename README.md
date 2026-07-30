@@ -1,35 +1,35 @@
-# 🤖 robot_1 — ESP32-C3 RISC-V Robot
+# 🤖 esp32c3_super_mini_robot — ESP32-C3 RISC-V Robot
 
 ESP32-C3 robot project — Arduino/PlatformIO firmware, browser-based flasher and monitor, audit dashboard, and a 9-theme Workshop-DIY web UI.
 
 ## 🌐 Live site
 
-**[abourdim.github.io/robot_1](https://abourdim.github.io/robot_1/)** — auto-deployed from `01_software/01_app/02_web/` on every push.
+**[abourdim.github.io/esp32c3_super_mini_robot](https://abourdim.github.io/esp32c3_super_mini_robot/)** — auto-deployed from `01_software/01_app/02_web/` on every push.
 
 ### 📚 Guides — by audience
 
 | Guide | For | What it covers |
 |---|---|---|
-| [`user-guide.html`](https://abourdim.github.io/robot_1/user-guide.html) | 🦸 Kids · end users | Power on · pair phone · drive · light/sound meanings · troubleshooting · safety |
-| [`build-guide.html`](https://abourdim.github.io/robot_1/build-guide.html) | 🔧 Makers | BOM (~$30–45) · tools · wiring · step-by-step assembly · 3D parts · first flash |
-| [`start-here.html`](https://abourdim.github.io/robot_1/start-here.html) | 💻 Developers | Firmware narrative tour. 14 missions: layout, build, flash, debug. |
-| [`learn.html`](https://abourdim.github.io/robot_1/learn.html) | 🧠 Curious devs | Reference manual. Every `launch.sh` option · `platformio.ini` directive · RMT · partition table · addr2line · Web Serial. |
-| [`hardware.html`](https://abourdim.github.io/robot_1/hardware.html) | ⚡ Hardware hackers | Live PCB browser. 5-layer toggle · GPIO pin map · connector reference · links to KiCad source + gerbers + interactive BOM. |
-| [`instructor.html`](https://abourdim.github.io/robot_1/instructor.html) | 🧑‍🏫 Teachers | Prereqs · 90-min lesson plan · student FAQ · cheat sheet · reset checklist |
+| [`user-guide.html`](https://abourdim.github.io/esp32c3_super_mini_robot/user-guide.html) | 🦸 Kids · end users | Power on · pair phone · drive · light/sound meanings · troubleshooting · safety |
+| [`build-guide.html`](https://abourdim.github.io/esp32c3_super_mini_robot/build-guide.html) | 🔧 Makers | BOM (~$30–45) · tools · wiring · step-by-step assembly · 3D parts · first flash |
+| [`start-here.html`](https://abourdim.github.io/esp32c3_super_mini_robot/start-here.html) | 💻 Developers | Firmware narrative tour. 14 missions: layout, build, flash, debug. |
+| [`learn.html`](https://abourdim.github.io/esp32c3_super_mini_robot/learn.html) | 🧠 Curious devs | Reference manual. Every `launch.sh` option · `platformio.ini` directive · RMT · partition table · addr2line · Web Serial. |
+| [`hardware.html`](https://abourdim.github.io/esp32c3_super_mini_robot/hardware.html) | ⚡ Hardware hackers | Live PCB browser. 5-layer toggle · GPIO pin map · connector reference · links to KiCad source + gerbers + interactive BOM. |
+| [`instructor.html`](https://abourdim.github.io/esp32c3_super_mini_robot/instructor.html) | 🧑‍🏫 Teachers | Prereqs · 90-min lesson plan · student FAQ · cheat sheet · reset checklist |
 
 ### 🛠️ Tools — runs in your browser
 
 | Tool | What it does |
 |---|---|
-| [`flash.html`](https://abourdim.github.io/robot_1/flash.html) | Click-to-flash via Web Serial (Chrome/Edge) |
-| [`monitor.html`](https://abourdim.github.io/robot_1/monitor.html) | Live serial monitor in the browser |
-| [`audit.html`](https://abourdim.github.io/robot_1/audit.html) | Bug tracker · severity dashboard · BUG-NNN forensics |
-| [`index.html`](https://abourdim.github.io/robot_1/) | Launcher landing page |
+| [`flash.html`](https://abourdim.github.io/esp32c3_super_mini_robot/flash.html) | Click-to-flash via Web Serial (Chrome/Edge) |
+| [`monitor.html`](https://abourdim.github.io/esp32c3_super_mini_robot/monitor.html) | Live serial monitor in the browser |
+| [`audit.html`](https://abourdim.github.io/esp32c3_super_mini_robot/audit.html) | Bug tracker · severity dashboard · BUG-NNN forensics |
+| [`index.html`](https://abourdim.github.io/esp32c3_super_mini_robot/) | Launcher landing page |
 
 ## 📁 Structure
 
 ```
-robot_1/
+esp32c3_super_mini_robot/
 ├── 01_software/
 │   ├── 01_app/                  ⚙ main robot firmware (ESP32-C3 Arduino)
 │   │   ├── 01_src/              source files (one .h/.cpp pair per system)
@@ -52,7 +52,7 @@ cd 01_software/01_app
 ./launch.sh flash              # one-shot: compile + upload + monitor
 ```
 
-Everything else is documented inside the launcher menu and in the live site's [Start Here](https://abourdim.github.io/robot_1/start-here.html) guide.
+Everything else is documented inside the launcher menu and in the live site's [Start Here](https://abourdim.github.io/esp32c3_super_mini_robot/start-here.html) guide.
 
 ## 🎨 Themes
 
@@ -67,7 +67,7 @@ Switch in **Settings (⚙️)** in any tool. Plus 3 languages (EN/FR/AR with RTL
 
 ## 🐛 Known bugs
 
-See [`audit.html`](https://abourdim.github.io/robot_1/audit.html) for the live tracker. Headline incidents documented:
+See [`audit.html`](https://abourdim.github.io/esp32c3_super_mini_robot/audit.html) for the live tracker. Headline incidents documented:
 - **BUG-001** — RMT ISR recursion crash on ESP32-C3 (✅ fixed by pinning to ESP-IDF 5.1)
 - **BUG-002** — Ctrl+C in MSYS2 monitor (🔍 open)
 - **BUG-003** — Unpinned platform → non-reproducible builds (✅ fixed)

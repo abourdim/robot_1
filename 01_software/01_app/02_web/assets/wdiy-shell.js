@@ -232,7 +232,7 @@
     /* ── Hardware — KiCad schematic + PCB browser ── */
     'hardware': {
       faq: [
-        ['Where is the schematic source?',  '<code><a href="https://github.com/abourdim/robot_1/tree/master/02_hardware/v3">02_hardware/v3/</a></code> — KiCad 7. The <code>.kicad_sch</code> is plain S-expression text.'],
+        ['Where is the schematic source?',  '<code><a href="https://github.com/abourdim/esp32c3_super_mini_robot/tree/master/02_hardware/v3">02_hardware/v3/</a></code> — KiCad 7. The <code>.kicad_sch</code> is plain S-expression text.'],
         ['Can I open it without KiCad?',    'Yes — the live page renders all 5 PCB layers as toggleable SVGs. For the schematic itself, KiCad 7+ is needed.'],
         ['What chip drives the motors?',    '<strong>TB6612FNG</strong> dual H-bridge — handles 2 DC motors at up to 1.2 A each. PWMA + AIN1/AIN2 for motor A; PWMB + BIN1/BIN2 for motor B.'],
         ['Is this still a v3 board?',       'Yes — v3 is the current revision (June–July 2025). v1 and v2 are archived in their own folders.'],
@@ -522,7 +522,7 @@
     <footer class="app-footer">
       <span class="footer-text">
         <a href="https://workshop-diy.org" target="_blank" rel="noopener">workshop-diy.org</a>
-        · <a href="https://github.com/abourdim/robot_1" target="_blank" rel="noopener" title="Source on GitHub">⭐ github</a>
+        · <a href="https://github.com/abourdim/esp32c3_super_mini_robot" target="_blank" rel="noopener" title="Source on GitHub">⭐ github</a>
         · ESP32-C3 Robot · <a href="audit.html">audit</a>
       </span>
     </footer>`;

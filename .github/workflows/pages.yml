@@ -2,7 +2,7 @@ name: Deploy Web tools to GitHub Pages
 
 # Single source of truth: 01_software/01_app/02_web/
 # This workflow mirrors that folder to GitHub Pages on every push to master,
-# so the site URL https://abourdim.github.io/robot_1/ always reflects HEAD.
+# so the site URL https://abourdim.github.io/esp32c3_super_mini_robot/ always reflects HEAD.
 
 on:
   push:
